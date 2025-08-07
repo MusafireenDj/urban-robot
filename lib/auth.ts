@@ -1,255 +1,249 @@
-import { webcrypto } from 'crypto'; // Corrected import for crypto
+import { NextRequest } from 'next/server'
 
-// Polyfill for webcrypto in Node.js environment if needed, though Next.js might handle it.
-// If this causes issues, consider a different approach for non-browser environments.
-// For browser environments, window.crypto is available.
-const crypto = typeof window !== 'undefined' ? window.crypto : webcrypto;
+// أنواع المستخدمين
+export type UserRole = 'admin' | 'editor' | 'viewer'
 
 export interface User {
-  id: string;
-  username: string;
-  passwordHash: string;
-  role: 'admin' | 'editor' | 'viewer';
-  lastLogin?: number;
-  failedLoginAttempts?: number;
-  lockoutUntil?: number;
+  id: string
+  username: string
+  email: string
+  role: UserRole
+  passwordHash: string
+  createdAt: string
+  lastLogin?: string
+  permissions: string[]
 }
 
+// الصلاحيات المتاحة
 export const PERMISSIONS = {
   MANAGE_PROPERTIES: 'manage_properties',
   MANAGE_USERS: 'manage_users',
-  MANAGE_MEDIA: 'manage_media',
   MANAGE_SETTINGS: 'manage_settings',
-};
+  MANAGE_MEDIA: 'manage_media',
+  VIEW_ANALYTICS: 'view_analytics',
+  CHANGE_PASSWORD: 'change_password'
+}
 
-const ROLES_PERMISSIONS: Record<User['role'], string[]> = {
-  admin: [
-    PERMISSIONS.MANAGE_PROPERTIES,
-    PERMISSIONS.MANAGE_USERS,
-    PERMISSIONS.MANAGE_MEDIA,
-    PERMISSIONS.MANAGE_SETTINGS,
-  ],
+// الصلاحيات حسب الدور
+export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
+  admin: Object.values(PERMISSIONS),
   editor: [
     PERMISSIONS.MANAGE_PROPERTIES,
     PERMISSIONS.MANAGE_MEDIA,
+    PERMISSIONS.VIEW_ANALYTICS,
+    PERMISSIONS.CHANGE_PASSWORD
   ],
-  viewer: [],
-};
+  viewer: [
+    PERMISSIONS.VIEW_ANALYTICS,
+    PERMISSIONS.CHANGE_PASSWORD
+  ]
+}
 
-class UserManager {
-  private static users: User[] = [];
-  private static initialized = false;
+// تشفير كلمة المرور
+const hashPassword = (password: string): string => {
+  return btoa(password + 'MusafireenDj_Salt_2024')
+}
 
-  private static async initialize() {
-    if (UserManager.initialized) return;
+// التحقق من كلمة المرور
+const verifyPassword = (password: string, hashedPassword: string): boolean => {
+  return hashPassword(password) === hashedPassword
+}
 
+// المستخدمين الافتراضيين
+const DEFAULT_USERS: User[] = [
+  {
+    id: 'admin-001',
+    username: 'admin',
+    email: 'medalmqaleh@gmail.com',
+    role: 'admin',
+    passwordHash: hashPassword('admin123'),
+    createdAt: new Date().toISOString(),
+    permissions: ROLE_PERMISSIONS.admin
+  }
+]
+
+// إدارة المستخدمين
+export class UserManager {
+  private static getUsers(): User[] {
     if (typeof window !== 'undefined') {
-      const storedUsers = localStorage.getItem('users');
-      if (storedUsers) {
-        UserManager.users = JSON.parse(storedUsers);
+      const saved = localStorage.getItem('users')
+      if (saved) {
+        try {
+          const users = JSON.parse(saved)
+          console.log('✅ تم تحميل المستخدمين:', users.map((u: User) => ({ username: u.username, role: u.role })))
+          return users
+        } catch (error) {
+          console.error('❌ خطأ في تحليل بيانات المستخدمين:', error)
+          console.log('🔄 إعادة تعيين المستخدمين الافتراضيين')
+          localStorage.setItem('users', JSON.stringify(DEFAULT_USERS))
+          return DEFAULT_USERS
+        }
       } else {
-        // Create a default admin user if no users exist
-        const adminPassword = 'adminpassword'; // In a real app, use environment variable or secure input
-        const adminHash = await UserManager.hashPassword(adminPassword);
-        UserManager.users.push({
-          id: 'admin-123',
-          username: 'admin',
-          passwordHash: adminHash,
-          role: 'admin',
-          failedLoginAttempts: 0,
-        });
-        UserManager.saveUsers();
+        console.log('📝 لا توجد بيانات محفوظة، استخدام المستخدمين الافتراضيين')
+        localStorage.setItem('users', JSON.stringify(DEFAULT_USERS))
+        return DEFAULT_USERS
       }
-      UserManager.initialized = true;
     }
+    return DEFAULT_USERS
   }
 
-  private static saveUsers() {
+  private static saveUsers(users: User[]): void {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('users', JSON.stringify(UserManager.users));
+      localStorage.setItem('users', JSON.stringify(users))
+      console.log('💾 تم حفظ المستخدمين:', users.map(u => ({ username: u.username, role: u.role })))
     }
   }
 
-  static async hashPassword(password: string): Promise<string> {
-    const textEncoder = new TextEncoder();
-    const data = textEncoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashedPassword = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashedPassword;
-  }
-
-  static async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-    const hashOfInput = await UserManager.hashPassword(password);
-    return hashOfInput === hashedPassword;
-  }
-
-  static async authenticate(username: string, password: string): Promise<User | null> {
-    await UserManager.initialize();
-    const user = UserManager.users.find(u => u.username === username);
-
-    if (!user) {
-      console.warn(`🚫 محاولة تسجيل دخول فاشلة: المستخدم ${username} غير موجود.`);
-      return null;
-    }
-
-    const now = Date.now();
-    const LOCKOUT_DURATION = 5 * 60 * 1000; // 5 minutes
-
-    if (user.lockoutUntil && user.lockoutUntil > now) {
-      console.warn(`🔒 المستخدم ${username} مقفل حتى ${new Date(user.lockoutUntil).toLocaleTimeString()}`);
-      return null;
-    }
-
-    const isPasswordValid = await UserManager.verifyPassword(password, user.passwordHash);
-
-    if (isPasswordValid) {
-      user.lastLogin = now;
-      user.failedLoginAttempts = 0;
-      user.lockoutUntil = undefined;
-      UserManager.saveUsers();
-      console.log(`✅ تسجيل دخول ناجح للمستخدم: ${username}`);
-      return user;
-    } else {
-      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
-      const MAX_ATTEMPTS = 3;
-      if (user.failedLoginAttempts >= MAX_ATTEMPTS) {
-        user.lockoutUntil = now + LOCKOUT_DURATION;
-        console.warn(`🚨 تم قفل المستخدم ${username} لمدة 5 دقائق بسبب محاولات تسجيل الدخول الفاشلة.`);
+  static validateCredentials(username: string, password: string): User | null {
+    console.log('🔍 التحقق من بيانات الدخول للمستخدم:', username)
+    const users = this.getUsers()
+    console.log('👥 المستخدمون المتاحون:', users.map(u => ({ username: u.username, role: u.role })))
+    
+    const user = users.find(u => u.username === username)
+    console.log('🔎 المستخدم الموجود:', user ? { username: user.username, role: user.role } : 'غير موجود')
+    
+    if (user) {
+      const passwordMatch = verifyPassword(password, user.passwordHash)
+      console.log('🔐 التحقق من كلمة المرور:', passwordMatch ? 'صحيحة' : 'خاطئة')
+      
+      if (passwordMatch) {
+        console.log('✅ تم التحقق من كلمة المرور بنجاح')
+        // تحديث آخر تسجيل دخول
+        user.lastLogin = new Date().toISOString()
+        this.saveUsers(users)
+        return user
       }
-      UserManager.saveUsers();
-      console.warn(`❌ كلمة مرور غير صحيحة للمستخدم: ${username}`);
-      return null;
     }
+    
+    console.log('❌ فشل التحقق من بيانات الدخول')
+    return null
   }
 
-  static getUserById(id: string): User | null {
-    // Ensure initialization before accessing users
-    // This is a quick fix for client-side context. In a real app, this would be server-side.
-    if (!UserManager.initialized) {
-      // This should ideally be awaited, but for a synchronous client-side call,
-      // we'll assume it's initialized or handle potential race conditions.
-      UserManager.initialize();
-    }
-    return UserManager.users.find(u => u.id === id) || null;
-  }
-
-  static getUserByUsername(username: string): User | null {
-    if (!UserManager.initialized) {
-      UserManager.initialize();
-    }
-    return UserManager.users.find(u => u.username === username) || null;
-  }
-
-  static async addUser(username: string, passwordPlain: string, role: User['role']): Promise<User | null> {
-    await UserManager.initialize();
-    if (UserManager.users.some(u => u.username === username)) {
-      console.warn(`⚠️ المستخدم ${username} موجود بالفعل.`);
-      return null;
-    }
-    const passwordHash = await UserManager.hashPassword(passwordPlain);
+  static createUser(userData: Omit<User, 'id' | 'passwordHash' | 'createdAt' | 'permissions'> & { password: string }): User {
+    const users = this.getUsers()
+    
     const newUser: User = {
-      id: crypto.randomUUID(),
-      username,
-      passwordHash,
-      role,
-      failedLoginAttempts: 0,
-    };
-    UserManager.users.push(newUser);
-    UserManager.saveUsers();
-    console.log(`➕ تم إضافة مستخدم جديد: ${username} بالدور ${role}`);
-    return newUser;
+      ...userData,
+      id: `user-${Date.now()}`,
+      passwordHash: hashPassword(userData.password),
+      createdAt: new Date().toISOString(),
+      permissions: ROLE_PERMISSIONS[userData.role]
+    }
+    
+    users.push(newUser)
+    this.saveUsers(users)
+    
+    return newUser
   }
 
-  static async updateUser(id: string, updates: Partial<Omit<User, 'passwordHash'>> & { newPassword?: string }): Promise<User | null> {
-    await UserManager.initialize();
-    const userIndex = UserManager.users.findIndex(u => u.id === id);
-    if (userIndex === -1) {
-      console.warn(`🚫 المستخدم بالمعرف ${id} غير موجود.`);
-      return null;
+  static updateUser(userId: string, updates: Partial<User>): boolean {
+    const users = this.getUsers()
+    const userIndex = users.findIndex(u => u.id === userId)
+    
+    if (userIndex !== -1) {
+      users[userIndex] = { ...users[userIndex], ...updates }
+      
+      // تحديث الصلاحيات حسب الدور
+      if (updates.role) {
+        users[userIndex].permissions = ROLE_PERMISSIONS[updates.role]
+      }
+      
+      this.saveUsers(users)
+      return true
     }
-
-    const user = UserManager.users[userIndex];
-    const updatedUser = { ...user, ...updates };
-
-    if (updates.newPassword) {
-      updatedUser.passwordHash = await UserManager.hashPassword(updates.newPassword);
-      console.log(`🔑 تم تغيير كلمة مرور المستخدم ${user.username}`);
-    }
-
-    UserManager.users[userIndex] = updatedUser;
-    UserManager.saveUsers();
-    console.log(`✏️ تم تحديث المستخدم: ${user.username}`);
-    return updatedUser;
+    
+    return false
   }
 
-  static deleteUser(id: string): boolean {
-    if (!UserManager.initialized) {
-      UserManager.initialize();
+  static deleteUser(userId: string): boolean {
+    const users = this.getUsers()
+    const filteredUsers = users.filter(u => u.id !== userId)
+    
+    if (filteredUsers.length < users.length) {
+      this.saveUsers(filteredUsers)
+      return true
     }
-    const initialLength = UserManager.users.length;
-    UserManager.users = UserManager.users.filter(u => u.id !== id);
-    if (UserManager.users.length < initialLength) {
-      UserManager.saveUsers();
-      console.log(`🗑️ تم حذف المستخدم بالمعرف: ${id}`);
-      return true;
-    }
-    console.warn(`🚫 فشل حذف المستخدم بالمعرف: ${id} (غير موجود)`);
-    return false;
+    
+    return false
   }
 
   static getAllUsers(): User[] {
-    if (!UserManager.initialized) {
-      UserManager.initialize();
+    return this.getUsers()
+  }
+
+  static getUserById(userId: string): User | null {
+    const users = this.getUsers()
+    return users.find(u => u.id === userId) || null
+  }
+
+  static changePassword(userId: string, newPassword: string): boolean {
+    const users = this.getUsers()
+    const userIndex = users.findIndex(u => u.id === userId)
+    
+    if (userIndex !== -1) {
+      users[userIndex].passwordHash = hashPassword(newPassword)
+      this.saveUsers(users)
+      return true
     }
-    return UserManager.users;
+    
+    return false
   }
 
-  static hasPermission(user: User | null, permission: string): boolean {
-    if (!user) return false;
-    const userPermissions = ROLES_PERMISSIONS[user.role] || [];
-    return userPermissions.includes(permission);
+  static hasPermission(user: User, permission: string): boolean {
+    return user.permissions.includes(permission)
   }
 }
 
-// Client-side session validation using localStorage
-export function validateSession(): boolean {
-  if (typeof window === 'undefined') {
-    return false; // Not in browser environment
-  }
-
-  const adminToken = localStorage.getItem('adminToken');
-  const loginTime = localStorage.getItem('loginTime');
-  const currentUserId = localStorage.getItem('currentUserId');
-
-  if (!adminToken || !loginTime || !currentUserId) {
-    return false;
-  }
-
-  const SESSION_EXPIRATION_TIME = 60 * 60 * 1000; // 1 hour
-  const now = Date.now();
-
-  if (now - parseInt(loginTime, 10) > SESSION_EXPIRATION_TIME) {
-    console.log('Session expired. Logging out.');
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('loginTime');
-    localStorage.removeItem('csrfToken');
-    localStorage.removeItem('currentUserId');
-    return false;
-  }
-
-  // In a real application, you would also validate the token with a backend.
-  // For this example, we assume the presence of the token and recent login time is sufficient.
-  return true;
+// إنشاء رمز الجلسة الآمن
+export const generateSecureToken = (): string => {
+  const timestamp = Date.now().toString()
+  const random = Math.random().toString(36).substring(2)
+  const signature = btoa(`${timestamp}_${random}_MusafireenDj_Secret`)
+  return signature
 }
 
-export function sanitizeInput(input: string): string {
-  // Create a temporary div element
-  const div = document.createElement('div');
-  // Set its text content to the input string, which automatically escapes HTML entities
-  div.appendChild(document.createTextNode(input));
-  // Return the innerHTML, which will be the escaped string
-  return div.innerHTML;
+// التحقق من صحة رمز الجلسة
+export const validateSession = (token: string, timestamp: string): boolean => {
+  try {
+    const sessionAge = Date.now() - parseInt(timestamp)
+    const maxAge = 24 * 60 * 60 * 1000 // 24 ساعة
+    
+    if (sessionAge > maxAge) {
+      console.log('⏰ انتهت صلاحية الجلسة')
+      return false
+    }
+    
+    const decoded = atob(token)
+    const isValid = decoded.includes('MusafireenDj_Secret')
+    console.log('🔐 التحقق من صحة الجلسة:', isValid ? 'صالحة' : 'غير صالحة')
+    return isValid
+  } catch (error) {
+    console.error('❌ خطأ في التحقق من الجلسة:', error)
+    return false
+  }
 }
 
-export { UserManager };
+// حماية من CSRF
+export const generateCSRFToken = (): string => {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36)
+}
+
+// تنظيف البيانات المدخلة
+export const sanitizeInput = (input: string): string => {
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .trim()
+}
+
+// التحقق من قوة كلمة المرور
+export const validatePasswordStrength = (password: string): boolean => {
+  const minLength = 8
+  const hasUpperCase = /[A-Z]/.test(password)
+  const hasLowerCase = /[a-z]/.test(password)
+  const hasNumbers = /\d/.test(password)
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+  
+  return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar
+}

@@ -1,143 +1,157 @@
 "use client"
 
-import React, { useState } from 'react'
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { UploadCloud, XCircle } from 'lucide-react'
+import { useState, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Upload, X, Eye, Download } from 'lucide-react'
+import Image from "next/image"
 
 interface ImageUploadProps {
-  currentImage: string;
-  onImageChange: (imageUrl: string) => void;
-  title?: string;
-  description?: string;
+  currentImage?: string
+  onImageChange: (imageUrl: string) => void
+  title: string
+  description?: string
 }
 
-export default function ImageUpload({
-  currentImage,
-  onImageChange,
-  title = "رفع صورة",
-  description = "اختر صورة أو أدخل رابط URL",
-}: ImageUploadProps) {
-  const [imageUrl, setImageUrl] = useState(currentImage);
-  const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export default function ImageUpload({ currentImage, onImageChange, title, description }: ImageUploadProps) {
+  const [isUploading, setIsUploading] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState(currentImage || '')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      if (selectedFile.size > 5 * 1024 * 1024) { // 5MB limit
-        setError("حجم الملف كبير جداً (الحد الأقصى 5 ميجابايت).");
-        setFile(null);
-        return;
-      }
-      if (!selectedFile.type.startsWith('image/')) {
-        setError("الرجاء اختيار ملف صورة صالح.");
-        setFile(null);
-        return;
-      }
-      setFile(selectedFile);
-      setImageUrl(URL.createObjectURL(selectedFile));
-      setError(null);
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // التحقق من نوع الملف
+    if (!file.type.startsWith('image/')) {
+      alert('يرجى اختيار ملف صورة صالح')
+      return
     }
-  };
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImageUrl(e.target.value);
-    setFile(null); // Clear file selection if URL is entered
-    setError(null);
-  };
-
-  const handleUpload = async () => {
-    setError(null);
-    if (file) {
-      // Simulate upload to a server
-      console.log("Uploading file:", file.name);
-      // In a real application, you would send this file to a backend API
-      // and get a public URL back.
-      // For now, we'll just use the object URL.
-      onImageChange(imageUrl);
-      alert("تم رفع الصورة بنجاح (محاكاة)!");
-    } else if (imageUrl && imageUrl.startsWith('http')) {
-      // If it's a URL, just use it directly
-      onImageChange(imageUrl);
-      alert("تم تحديث الصورة من الرابط!");
-    } else {
-      setError("الرجاء اختيار ملف أو إدخال رابط URL صالح.");
+    // التحقق من حجم الملف (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('حجم الملف كبير جداً. يرجى اختيار صورة أصغر من 5MB')
+      return
     }
-  };
 
-  const handleRemoveImage = () => {
-    setImageUrl("");
-    setFile(null);
-    onImageChange("");
-    setError(null);
-  };
+    setIsUploading(true)
+
+    try {
+      // تحويل الصورة إلى base64 للمعاينة
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        setPreviewUrl(result)
+        onImageChange(result)
+      }
+      reader.readAsDataURL(file)
+    } catch (error) {
+      console.error('خطأ في رفع الصورة:', error)
+      alert('حدث خطأ في رفع الصورة')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const removeImage = () => {
+    setPreviewUrl('')
+    onImageChange('')
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
 
   return (
-    <Card className="bg-gray-700 border-gray-600 text-white">
+    <Card className="bg-gray-800 border-gray-700">
       <CardHeader>
         <CardTitle className="text-white">{title}</CardTitle>
-        <CardDescription className="text-gray-300">{description}</CardDescription>
+        {description && <p className="text-gray-300 text-sm">{description}</p>}
       </CardHeader>
       <CardContent className="space-y-4">
-        {imageUrl && (
-          <div className="relative w-full h-48 rounded-md overflow-hidden border border-gray-600">
-            <Image
-              src={imageUrl || "/placeholder.svg"}
-              alt="Uploaded image preview"
-              layout="fill"
-              objectFit="cover"
-              className="object-center"
-            />
-            <Button
-              variant="destructive"
-              size="icon"
-              className="absolute top-2 right-2 rounded-full"
-              onClick={handleRemoveImage}
-            >
-              <XCircle className="h-4 w-4" />
-              <span className="sr-only">إزالة الصورة</span>
-            </Button>
-          </div>
-        )}
-
-        <div className="grid gap-2">
-          <Label htmlFor="image-upload" className="text-white">رفع من الجهاز</Label>
-          <Input
-            id="image-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="bg-gray-800 border-gray-600 text-white file:text-white file:bg-gray-600 file:border-0"
-          />
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="image-url" className="text-white">أو أدخل رابط URL</Label>
-          <Input
-            id="image-url"
-            type="url"
-            value={imageUrl.startsWith('blob:') ? '' : imageUrl} // Don't show blob URLs in input
-            onChange={handleUrlChange}
-            placeholder="https://example.com/your-image.jpg"
-            className="bg-gray-800 border-gray-600 text-white focus:border-orange-500 focus:ring-orange-500"
-          />
-        </div>
-
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        <Button
-          onClick={handleUpload}
-          className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white"
-          disabled={!file && (!imageUrl || !imageUrl.startsWith('http'))}
+        {/* Upload Area */}
+        <div
+          className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-orange-400 transition-colors cursor-pointer"
+          onClick={() => fileInputRef.current?.click()}
         >
-          <UploadCloud className="h-4 w-4 ml-2" />
-          تأكيد الصورة
-        </Button>
+          {previewUrl ? (
+            <div className="relative">
+              <Image
+                src={previewUrl || "/placeholder.svg"}
+                alt="معاينة الصورة"
+                width={400}
+                height={300}
+                className="max-w-full max-h-64 object-contain mx-auto rounded-lg"
+              />
+              <div className="absolute top-2 right-2 flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    window.open(previewUrl, '_blank')
+                  }}
+                  className="bg-blue-500 hover:bg-blue-600"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removeImage()
+                  }}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-gray-400">
+              <Upload className="mx-auto h-12 w-12 mb-4" />
+              <p className="text-lg">اضغط لاختيار صورة أو اسحبها هنا</p>
+              <p className="text-sm">PNG, JPG, GIF حتى 5MB</p>
+            </div>
+          )}
+        </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+
+        {/* Upload Button */}
+        <div className="flex gap-2">
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="flex-1 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
+          >
+            <Upload className="h-4 w-4 ml-2" />
+            {isUploading ? 'جاري الرفع...' : 'اختيار صورة'}
+          </Button>
+          
+          {previewUrl && (
+            <Button
+              onClick={removeImage}
+              variant="outline"
+              className="border-red-500 text-red-400 hover:bg-red-500/10 bg-transparent"
+            >
+              <X className="h-4 w-4 ml-2" />
+              إزالة
+            </Button>
+          )}
+        </div>
+
+        {/* Tips */}
+        <div className="text-xs text-gray-400 space-y-1">
+          <p>• استخدم صور عالية الجودة (1920x1080 أو أعلى)</p>
+          <p>• تأكد من وضوح الصورة وجودة الإضاءة</p>
+          <p>• الصيغ المدعومة: JPG, PNG, GIF</p>
+        </div>
       </CardContent>
     </Card>
-  );
+  )
 }

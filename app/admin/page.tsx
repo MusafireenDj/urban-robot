@@ -16,23 +16,10 @@ import ImageUpload from "@/components/image-upload"
 import UserManagement from "@/components/user-management"
 import ThemeCustomizer from "@/components/theme-customizer"
 import AdminGuard from "@/components/admin-guard"
-import { Calendar, DollarSign, Users, Home, BarChart, Settings, ImageIcon } from 'lucide-react'
-import { InlineEditor } from "@/components/inline-editor"
+import { MapPin, Save, Eye, LogOut, Plus, Edit, Settings, Shield, CheckCircle, Users, ImageIcon, Palette } from 'lucide-react'
 import { SiteSettings, defaultSettings, saveSettings, loadSettings, applyTheme } from "@/lib/settings"
 import { sanitizeInput } from "@/lib/auth"
 import { UserManager, User, PERMISSIONS } from "@/lib/auth"
-import Link from 'next/link'
-import { Suspense } from 'react'
-import { validateSession } from '@/lib/auth';
-import { ADMIN_DASHBOARD_PATH } from '@/lib/settings';
-import { redirect } from 'next/navigation';
-
-export default function AdminPage() {
-  // This page simply redirects to the admin dashboard.
-  // The actual authentication check happens in middleware.ts and AdminGuard.
-  redirect(ADMIN_DASHBOARD_PATH);
-  return null;
-}
 
 function AdminContent() {
   const [activeTab, setActiveTab] = useState("add-property")
@@ -180,7 +167,7 @@ function AdminContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
               <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-3 rounded-lg">
-                <Home className="h-6 w-6" />
+                <Shield className="h-6 w-6" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">MusafireenDj</h1>
@@ -198,7 +185,7 @@ function AdminContent() {
                 variant="outline"
                 className="border-gray-600 text-gray-300 hover:bg-gray-700 bg-transparent"
               >
-                <Home className="h-4 w-4 ml-2" />
+                <LogOut className="h-4 w-4 ml-2" />
                 خروج آمن
               </Button>
             </div>
@@ -211,19 +198,15 @@ function AdminContent() {
           {/* Navigation Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
             <TabsList className="grid w-full grid-cols-6 bg-gray-800">
-              <TabsTrigger value="dashboard" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500">
-                <Home className="h-4 w-4 ml-2" />
-                الرئيسية
-              </TabsTrigger>
               {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_PROPERTIES) && (
                 <TabsTrigger value="add-property" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500">
-                  <Calendar className="h-4 w-4 ml-2" />
+                  <Plus className="h-4 w-4 ml-2" />
                   إضافة عقار
                 </TabsTrigger>
               )}
               {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_PROPERTIES) && (
                 <TabsTrigger value="manage-properties" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500">
-                  <Calendar className="h-4 w-4 ml-2" />
+                  <Edit className="h-4 w-4 ml-2" />
                   إدارة العقارات
                 </TabsTrigger>
               )}
@@ -241,8 +224,8 @@ function AdminContent() {
               )}
               {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_SETTINGS) && (
                 <TabsTrigger value="theme" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500">
-                  <Settings className="h-4 w-4 ml-2" />
-                  تخصيص الثيم
+                  <Palette className="h-4 w-4 ml-2" />
+                  الألوان والمظهر
                 </TabsTrigger>
               )}
               {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_SETTINGS) && (
@@ -252,83 +235,6 @@ function AdminContent() {
                 </TabsTrigger>
               )}
             </TabsList>
-
-            {/* Dashboard Tab */}
-            <TabsContent value="dashboard">
-              <div className="space-y-8">
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">
-                        إجمالي العقارات
-                      </CardTitle>
-                      <Home className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">2,350</div>
-                      <p className="text-xs text-muted-foreground">
-                        +20.1% من الشهر الماضي
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">
-                        المستخدمون النشطون
-                      </CardTitle>
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">+1,234</div>
-                      <p className="text-xs text-muted-foreground">
-                        +180.1% من الشهر الماضي
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">
-                        الزيارات اليومية
-                      </CardTitle>
-                      <BarChart className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">573,000</div>
-                      <p className="text-xs text-muted-foreground">
-                        +12% من الشهر الماضي
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">
-                        العقارات المعلقة
-                      </CardTitle>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">12</div>
-                      <p className="text-xs text-muted-foreground">
-                        تحتاج إلى مراجعة
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-                <div className="mt-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>تحرير المحتوى المباشر</CardTitle>
-                      <CardDescription>
-                        قم بتحرير النصوص والصور مباشرة على صفحات الموقع.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <InlineEditor />
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </TabsContent>
 
             {/* Add Property Tab */}
             {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_PROPERTIES) && (
@@ -578,7 +484,7 @@ function AdminContent() {
                         variant="outline"
                         className="border-gray-600 text-gray-300 hover:bg-gray-700 bg-transparent"
                       >
-                        <Home className="h-4 w-4 ml-2" />
+                        <Eye className="h-4 w-4 ml-2" />
                         معاينة
                       </Button>
 
@@ -586,7 +492,7 @@ function AdminContent() {
                         type="submit"
                         className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white"
                       >
-                        <Home className="h-4 w-4 ml-2" />
+                        <Save className="h-4 w-4 ml-2" />
                         حفظ العقار
                       </Button>
                     </div>
@@ -879,15 +785,15 @@ function AdminContent() {
                         className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white"
                       >
                         {saveStatus === 'saving' && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />}
-                        {saveStatus === 'saved' && <Home className="h-4 w-4 ml-2" />}
-                        <Home className="h-4 w-4 ml-2" />
+                        {saveStatus === 'saved' && <CheckCircle className="h-4 w-4 ml-2" />}
+                        <Save className="h-4 w-4 ml-2" />
                         {saveStatus === 'saving' ? 'جاري الحفظ...' : saveStatus === 'saved' ? 'تم الحفظ!' : 'حفظ الإعدادات'}
                       </Button>
                     </div>
 
                     {saveStatus === 'saved' && (
                       <Alert className="border-green-500 bg-green-500/10">
-                        <Home className="h-4 w-4 text-green-500" />
+                        <CheckCircle className="h-4 w-4 text-green-500" />
                         <AlertDescription className="text-green-200">
                           تم حفظ الإعدادات بنجاح!
                         </AlertDescription>
@@ -901,5 +807,13 @@ function AdminContent() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AdminPage() {
+  return (
+    <AdminGuard>
+      <AdminContent />
+    </AdminGuard>
   )
 }

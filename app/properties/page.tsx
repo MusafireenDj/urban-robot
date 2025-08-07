@@ -1,255 +1,402 @@
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Bed, Bath, Ruler, Search, DollarSign } from 'lucide-react';
-import { SITE_NAME, HOME_PATH, ABOUT_PATH, CONTACT_PATH, LOGIN_PATH, PROPERTIES_PATH } from '@/lib/settings';
-import { Label } from '@/components/ui/label';
+"use client"
 
-interface Property {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  bedrooms: number;
-  bathrooms: number;
-  area: number; // in sqft or sqm
-  location: string;
-  images: string[];
-  type: 'apartment' | 'house' | 'land' | 'commercial';
-  availability: 'for_rent' | 'for_sale';
-}
+import { useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { MapPin, Phone, Mail, MessageCircle, Bed, Bath, Square, Star, Search, Filter } from 'lucide-react'
 
-// Mock data for properties
-const mockProperties: Property[] = [
-  {
-    id: '1',
-    title: 'Spacious Family Villa',
-    description: 'A beautiful villa with a large garden, perfect for families.',
-    price: 250000,
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 2500,
-    location: 'Balbala, Djibouti',
-    images: ['/placeholder.svg?height=200&width=300&text=Villa'],
-    type: 'house',
-    availability: 'for_sale',
-  },
-  {
-    id: '2',
-    title: 'Modern Downtown Apartment',
-    description: 'Luxurious apartment in the heart of the city with stunning sea views.',
-    price: 1200, // per month
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 1200,
-    location: 'City Center, Djibouti',
-    images: ['/placeholder.svg?height=200&width=300&text=Apartment'],
-    type: 'apartment',
-    availability: 'for_rent',
-  },
-  {
-    id: '3',
-    title: 'Commercial Office Space',
-    description: 'Prime office space available for rent in a bustling commercial area.',
-    price: 3000, // per month
-    bedrooms: 0,
-    bathrooms: 1,
-    area: 1500,
-    location: 'Port Area, Djibouti',
-    images: ['/placeholder.svg?height=200&width=300&text=Office'],
-    type: 'commercial',
-    availability: 'for_rent',
-  },
-  {
-    id: '4',
-    title: 'Beachfront Land Plot',
-    description: 'Ideal for developing a resort or luxury villa. Direct access to the beach.',
-    price: 500000,
-    bedrooms: 0,
-    bathrooms: 0,
-    area: 10000,
-    location: 'Arta Beach, Djibouti',
-    images: ['/placeholder.svg?height=200&width=300&text=Land'],
-    type: 'land',
-    availability: 'for_sale',
-  },
-  {
-    id: '5',
-    title: 'Cozy Studio for Rent',
-    description: 'Affordable and compact studio apartment, perfect for singles or students.',
-    price: 500, // per month
-    bedrooms: 1,
-    bathrooms: 1,
-    area: 500,
-    location: 'Ambouli, Djibouti',
-    images: ['/placeholder.svg?height=200&width=300&text=Studio'],
-    type: 'apartment',
-    availability: 'for_rent',
-  },
-];
+export default function PropertiesPage() {
+  const [searchTerm, setSearchTerm] = useState("")
+  const [priceRange, setPriceRange] = useState("all")
+  const [propertyType, setPropertyType] = useState("all")
+  const [location, setLocation] = useState("all")
 
-async function getProperties(filters: any): Promise<Property[]> {
-  // Simulate API call or database fetch with filters
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  let filteredProperties = mockProperties;
+  const properties = [
+    {
+      id: 1,
+      title: "شقة فاخرة في وسط المدينة",
+      location: "جيبوتي سيتي",
+      price: "800",
+      currency: "USD",
+      period: "شهرياً",
+      bedrooms: 3,
+      bathrooms: 2,
+      area: 120,
+      image: "/placeholder.svg?height=300&width=400&text=شقة+فاخرة",
+      rating: 4.8,
+      featured: true,
+      type: "apartment",
+    },
+    {
+      id: 2,
+      title: "شقة عائلية مع إطلالة بحرية",
+      location: "حي الأوروبي",
+      price: "1200",
+      currency: "USD",
+      period: "شهرياً",
+      bedrooms: 4,
+      bathrooms: 3,
+      area: 180,
+      image: "/placeholder.svg?height=300&width=400&text=شقة+بحرية",
+      rating: 4.9,
+      featured: true,
+      type: "apartment",
+    },
+    {
+      id: 3,
+      title: "استوديو حديث للشباب",
+      location: "حي النجمة",
+      price: "450",
+      currency: "USD",
+      period: "شهرياً",
+      bedrooms: 1,
+      bathrooms: 1,
+      area: 45,
+      image: "/placeholder.svg?height=300&width=400&text=استوديو+حديث",
+      rating: 4.6,
+      featured: false,
+      type: "studio",
+    },
+    {
+      id: 4,
+      title: "فيلا مع حديقة خاصة",
+      location: "حي السلام",
+      price: "2000",
+      currency: "USD",
+      period: "شهرياً",
+      bedrooms: 5,
+      bathrooms: 4,
+      area: 300,
+      image: "/placeholder.svg?height=300&width=400&text=فيلا+حديقة",
+      rating: 4.7,
+      featured: true,
+      type: "villa",
+    },
+    {
+      id: 5,
+      title: "شقة مفروشة قريبة من المطار",
+      location: "حي المطار",
+      price: "600",
+      currency: "USD",
+      period: "شهرياً",
+      bedrooms: 2,
+      bathrooms: 1,
+      area: 80,
+      image: "/placeholder.svg?height=300&width=400&text=شقة+مطار",
+      rating: 4.4,
+      featured: false,
+      type: "apartment",
+    },
+    {
+      id: 6,
+      title: "بنتهاوس مع تراس كبير",
+      location: "حي الهضبة",
+      price: "1800",
+      currency: "USD",
+      period: "شهرياً",
+      bedrooms: 4,
+      bathrooms: 3,
+      area: 220,
+      image: "/placeholder.svg?height=300&width=400&text=بنتهاوس+تراس",
+      rating: 4.8,
+      featured: true,
+      type: "penthouse",
+    },
+  ]
 
-  if (filters.location) {
-    filteredProperties = filteredProperties.filter(p =>
-      p.location.toLowerCase().includes(filters.location.toLowerCase())
-    );
-  }
-  if (filters.type && filters.type !== 'all') {
-    filteredProperties = filteredProperties.filter(p => p.type === filters.type);
-  }
-  if (filters.availability && filters.availability !== 'all') {
-    filteredProperties = filteredProperties.filter(p => p.availability === filters.availability);
-  }
-  // Add more filter logic as needed (e.g., price range, bedrooms, bathrooms)
+  const filteredProperties = properties.filter((property) => {
+    const matchesSearch =
+      property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.location.toLowerCase().includes(searchTerm.toLowerCase())
 
-  return filteredProperties;
-}
+    const matchesPrice =
+      priceRange === "all" ||
+      (priceRange === "low" && parseInt(property.price) < 600) ||
+      (priceRange === "medium" && parseInt(property.price) >= 600 && parseInt(property.price) <= 1200) ||
+      (priceRange === "high" && parseInt(property.price) > 1200)
 
-export default async function PropertiesPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-  const properties = await getProperties(searchParams);
+    const matchesType = propertyType === "all" || property.type === propertyType
+
+    const matchesLocation = location === "all" || property.location.includes(location)
+
+    return matchesSearch && matchesPrice && matchesType && matchesLocation
+  })
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-background text-foreground">
-      <header className="px-4 lg:px-6 h-14 flex items-center justify-between bg-card border-b">
-        <Link href={HOME_PATH} className="flex items-center justify-center" prefetch={false}>
-          <MapPin className="h-6 w-6 text-primary" />
-          <span className="sr-only">{SITE_NAME}</span>
-        </Link>
-        <nav className="flex gap-4 sm:gap-6">
-          <Link href={PROPERTIES_PATH} className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-            Properties
-          </Link>
-          <Link href={ABOUT_PATH} className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-            About
-          </Link>
-          <Link href={CONTACT_PATH} className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-            Contact
-          </Link>
-          <Link href={LOGIN_PATH} className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-            Login
-          </Link>
-        </nav>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black">
+      {/* Header */}
+      <header className="bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4 rtl:space-x-reverse">
+              <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-3 rounded-lg">
+                <MapPin className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">MusafireenDj</h1>
+                <p className="text-sm text-gray-400">أفضل الشقق للإيجار</p>
+              </div>
+            </div>
+            <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
+              <Link href="/" className="text-gray-400 hover:text-orange-400 transition-colors">
+                الرئيسية
+              </Link>
+              <Link href="/properties" className="text-orange-400 font-semibold">
+                العقارات
+              </Link>
+              <Link href="/about" className="text-gray-400 hover:text-orange-400 transition-colors">
+                من نحن
+              </Link>
+              <Link href="/contact" className="text-gray-400 hover:text-orange-400 transition-colors">
+                اتصل بنا
+              </Link>
+            </nav>
+          </div>
+        </div>
       </header>
-      <main className="flex-1 container mx-auto px-4 py-8 md:py-12">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl">Our Properties</h1>
-          <p className="text-muted-foreground mt-2 max-w-[600px] mx-auto">
-            Explore a diverse range of properties available for rent and sale in Djibouti.
-          </p>
-        </div>
 
-        {/* Search and Filter Section */}
-        <div className="bg-card p-6 rounded-lg shadow-sm mb-8">
-          <form className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div className="grid gap-2">
-              <Label htmlFor="location">Location</Label>
-              <Input id="location" name="location" placeholder="e.g., Balbala" defaultValue={searchParams.location as string || ''} />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="type">Property Type</Label>
-              <Select name="type" defaultValue={searchParams.type as string || 'all'}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+      {/* Search and Filter Section */}
+      <section className="py-8 bg-gray-800 shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-white mb-6 text-center">جميع العقارات المتاحة</h2>
+
+            <div className="grid md:grid-cols-5 gap-4 mb-8">
+              <div className="relative">
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="ابحث عن عقار..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pr-10 bg-gray-700 text-white border-gray-600 focus:border-orange-500 focus:ring-orange-500"
+                />
+              </div>
+
+              <Select value={priceRange} onValueChange={setPriceRange}>
+                <SelectTrigger className="bg-gray-700 text-white border-gray-600">
+                  <SelectValue placeholder="نطاق السعر" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="apartment">Apartment</SelectItem>
-                  <SelectItem value="house">House</SelectItem>
-                  <SelectItem value="land">Land</SelectItem>
-                  <SelectItem value="commercial">Commercial</SelectItem>
+                <SelectContent className="bg-gray-700 text-white border-gray-600">
+                  <SelectItem value="all">جميع الأسعار</SelectItem>
+                  <SelectItem value="low">أقل من $600</SelectItem>
+                  <SelectItem value="medium">$600 - $1200</SelectItem>
+                  <SelectItem value="high">أكثر من $1200</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="availability">Availability</Label>
-              <Select name="availability" defaultValue={searchParams.availability as string || 'all'}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select availability" />
+
+              <Select value={propertyType} onValueChange={setPropertyType}>
+                <SelectTrigger className="bg-gray-700 text-white border-gray-600">
+                  <SelectValue placeholder="نوع العقار" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="for_rent">For Rent</SelectItem>
-                  <SelectItem value="for_sale">For Sale</SelectItem>
+                <SelectContent className="bg-gray-700 text-white border-gray-600">
+                  <SelectItem value="all">جميع الأنواع</SelectItem>
+                  <SelectItem value="apartment">شقة</SelectItem>
+                  <SelectItem value="studio">استوديو</SelectItem>
+                  <SelectItem value="villa">فيلا</SelectItem>
+                  <SelectItem value="penthouse">بنتهاوس</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <Button type="submit" className="w-full md:col-span-1">
-              <Search className="mr-2 h-4 w-4" /> Search
-            </Button>
-          </form>
-        </div>
 
-        {/* Property Listings */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {properties.length === 0 ? (
-            <div className="col-span-full text-center text-muted-foreground py-12">
-              No properties found matching your criteria.
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger className="bg-gray-700 text-white border-gray-600">
+                  <SelectValue placeholder="الموقع" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-700 text-white border-gray-600">
+                  <SelectItem value="all">جميع المواقع</SelectItem>
+                  <SelectItem value="جيبوتي سيتي">جيبوتي سيتي</SelectItem>
+                  <SelectItem value="الأوروبي">حي الأوروبي</SelectItem>
+                  <SelectItem value="النجمة">حي النجمة</SelectItem>
+                  <SelectItem value="السلام">حي السلام</SelectItem>
+                  <SelectItem value="المطار">حي المطار</SelectItem>
+                  <SelectItem value="الهضبة">حي الهضبة</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600">
+                <Filter className="h-4 w-4 ml-2" />
+                تطبيق الفلتر
+              </Button>
             </div>
-          ) : (
-            properties.map((property) => (
-              <Card key={property.id} className="flex flex-col overflow-hidden">
-                <Link href={`/property/${property.id}`} prefetch={false}>
-                  <img
-                    src={property.images[0] || "/placeholder.svg"}
+
+            <div className="text-center text-gray-400 mb-6">تم العثور على {filteredProperties.length} عقار</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Properties Grid */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {filteredProperties.map((property) => (
+              <Card
+                key={property.id}
+                className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group bg-gray-800"
+              >
+                <div className="relative">
+                  <Image
+                    src={property.image || "/placeholder.svg"}
                     alt={property.title}
                     width={400}
-                    height={250}
-                    className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
-                    style={{ aspectRatio: '400 / 250', objectFit: 'cover' }}
+                    height={300}
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                </Link>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xl">{property.title}</CardTitle>
-                  <CardDescription className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4" /> {property.location}
+                  {property.featured && (
+                    <Badge className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                      مميز
+                    </Badge>
+                  )}
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                    <span className="text-sm font-semibold ml-1">{property.rating}</span>
+                  </div>
+                </div>
+
+                <CardHeader>
+                  <CardTitle className="text-xl text-white">{property.title}</CardTitle>
+                  <CardDescription className="flex items-center text-gray-400">
+                    <MapPin className="h-4 w-4 ml-1" />
+                    {property.location}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex-grow">
-                  <p className="text-2xl font-bold text-primary mb-2">
-                    {property.availability === 'for_rent' ? `$${property.price}/month` : `$${property.price}`}
-                  </p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Bed className="h-4 w-4" /> {property.bedrooms}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Bath className="h-4 w-4" /> {property.bathrooms}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Ruler className="h-4 w-4" /> {property.area} sqft
+
+                <CardContent>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-2xl font-bold text-orange-400">
+                      ${property.price} <span className="text-sm text-gray-500">{property.period}</span>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                    {property.description}
-                  </p>
+
+                  <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
+                    <div className="flex items-center">
+                      <Bed className="h-4 w-4 ml-1" />
+                      {property.bedrooms} غرف
+                    </div>
+                    <div className="flex items-center">
+                      <Bath className="h-4 w-4 ml-1" />
+                      {property.bathrooms} حمام
+                    </div>
+                    <div className="flex items-center">
+                      <Square className="h-4 w-4 ml-1" />
+                      {property.area} م²
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button className="flex-1 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600">
+                      <Link href={`/property/${property.id}`}>عرض التفاصيل</Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="border-green-500 text-green-600 hover:bg-green-50 bg-transparent"
+                      onClick={() =>
+                        window.open(
+                          `https://wa.me/+25377777777?text=مرحباً، أريد الاستفسار عن ${property.title}`,
+                          "_blank",
+                        )
+                      }
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardContent>
-                <CardFooter>
-                  <Link href={`/property/${property.id}`} className="w-full" prefetch={false}>
-                    <Button className="w-full">View Details</Button>
-                  </Link>
-                </CardFooter>
               </Card>
-            ))
+            ))}
+          </div>
+
+          {filteredProperties.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <Search className="h-16 w-16 mx-auto mb-4" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">لم يتم العثور على عقارات</h3>
+              <p className="text-gray-500">جرب تغيير معايير البحث أو الفلتر</p>
+            </div>
           )}
         </div>
-      </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-card text-card-foreground">
-        <p className="text-xs text-muted-foreground">&copy; 2024 {SITE_NAME}. All rights reserved.</p>
-        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
-            Terms of Service
-          </Link>
-          <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
-            Privacy
-          </Link>
-        </nav>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 rtl:space-x-reverse mb-4">
+                <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-2 rounded-lg">
+                  <MapPin className="h-5 w-5" />
+                </div>
+                <h4 className="text-xl font-bold">MusafireenDj</h4>
+              </div>
+              <p className="text-gray-400">
+                نحن نقدم أفضل الخدمات العقارية في جيبوتي مع التزام كامل بالجودة والمصداقية.
+              </p>
+            </div>
+
+            <div>
+              <h5 className="font-semibold mb-4">روابط سريعة</h5>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <Link href="/" className="hover:text-white transition-colors">
+                    الرئيسية
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/properties" className="hover:text-white transition-colors">
+                    العقارات
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="hover:text-white transition-colors">
+                    من نحن
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-white transition-colors">
+                    اتصل بنا
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h5 className="font-semibold mb-4">خدماتنا</h5>
+              <ul className="space-y-2 text-gray-400">
+                <li>تأجير الشقق</li>
+                <li>تأجير المنازل</li>
+                <li>استشارات عقارية</li>
+                <li>إدارة العقارات</li>
+              </ul>
+            </div>
+
+            <div>
+              <h5 className="font-semibold mb-4">تواصل معنا</h5>
+              <div className="space-y-2 text-gray-400">
+                <p className="flex items-center">
+                  <Phone className="h-4 w-4 ml-2" />
+                  +253-77-77-77-77
+                </p>
+                <p className="flex items-center">
+                  <Mail className="h-4 w-4 ml-2" />
+                  medalmqaleh@gmail.com
+                </p>
+                <p className="flex items-center">
+                  <MapPin className="h-4 w-4 ml-2" />
+                  جيبوتي سيتي، جيبوتي
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 MusafireenDj. جميع الحقوق محفوظة.</p>
+          </div>
+        </div>
       </footer>
     </div>
-  );
+  )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -11,10 +11,6 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { MapPin, Lock, User, Eye, EyeOff, Shield, AlertTriangle, Mail } from 'lucide-react'
 import { UserManager, generateSecureToken, generateCSRFToken } from "@/lib/auth"
-import { supabase } from '@/lib/auth' // Client-side Supabase client
-import { useToast } from "@/hooks/use-toast"
-import { login } from '@/lib/auth'; // Assuming lib/auth.ts has login
-import { ADMIN_LOGIN_PATH } from '@/lib/settings'; // Assuming lib/settings.ts
 
 function LoginContent() {
   const [credentials, setCredentials] = useState({
@@ -24,9 +20,8 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  // تم تعطيل آلية الحظر مؤقتًا لأغراض الاختبار
   const [attempts, setAttempts] = useState(0)
-  const [isBlocked, setIsBlocked] = useState(false) // تم تعيينها دائمًا إلى false لأغراض الاختبار
+  const [isBlocked, setIsBlocked] = useState(false)
   const [blockTimeLeft, setBlockTimeLeft] = useState(0)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [resetEmail, setResetEmail] = useState("")
@@ -36,45 +31,44 @@ function LoginContent() {
   const searchParams = useSearchParams()
   const expired = searchParams.get('expired')
 
-  // تم تعطيل حماية من محاولات الاختراق المتكررة مؤقتًا لأغراض الاختبار
+  // حماية من محاولات الاختراق المتكررة
   useEffect(() => {
-    // const savedAttempts = localStorage.getItem('loginAttempts')
-    // const lastAttempt = localStorage.getItem('lastLoginAttempt')
+    const savedAttempts = localStorage.getItem('loginAttempts')
+    const lastAttempt = localStorage.getItem('lastLoginAttempt')
     
-    // if (savedAttempts && lastAttempt) {
-    //   const attemptCount = parseInt(savedAttempts)
-    //   const timeSinceLastAttempt = Date.now() - parseInt(lastAttempt)
-    //   const blockDuration = 15 * 60 * 1000 // 15 دقيقة
+    if (savedAttempts && lastAttempt) {
+      const attemptCount = parseInt(savedAttempts)
+      const timeSinceLastAttempt = Date.now() - parseInt(lastAttempt)
+      const blockDuration = 15 * 60 * 1000 // 15 دقيقة
       
-    //   if (attemptCount >= 5 && timeSinceLastAttempt < blockDuration) {
-    //     setIsBlocked(true)
-    //     setBlockTimeLeft(Math.ceil((blockDuration - timeSinceLastAttempt) / 1000))
+      if (attemptCount >= 5 && timeSinceLastAttempt < blockDuration) {
+        setIsBlocked(true)
+        setBlockTimeLeft(Math.ceil((blockDuration - timeSinceLastAttempt) / 1000))
         
-    //     // إرسال تنبيه أمني
-    //     sendSecurityAlert('محاولات دخول متكررة مشبوهة')
+        // إرسال تنبيه أمني
+        sendSecurityAlert('محاولات دخول متكررة مشبوهة')
         
-    //     const timer = setInterval(() => {
-    //       setBlockTimeLeft(prev => {
-    //         if (prev <= 1) {
-    //           setIsBlocked(false)
-    //           localStorage.removeItem('loginAttempts')
-    //           localStorage.removeItem('lastLoginAttempt')
-    //           clearInterval(timer)
-    //           return 0
-    //         }
-    //         return prev - 1
-    //       })
-    //     }, 1000)
+        const timer = setInterval(() => {
+          setBlockTimeLeft(prev => {
+            if (prev <= 1) {
+              setIsBlocked(false)
+              localStorage.removeItem('loginAttempts')
+              localStorage.removeItem('lastLoginAttempt')
+              clearInterval(timer)
+              return 0
+            }
+            return prev - 1
+          })
+        }, 1000)
         
-    //     return () => clearInterval(timer)
-    //   } else if (timeSinceLastAttempt >= blockDuration) {
-    //     localStorage.removeItem('loginAttempts')
-    //     localStorage.removeItem('lastLoginAttempt')
-    //   } else {
-    //     setAttempts(attemptCount)
-    //   }
-    // }
-    setIsBlocked(false); // تأكد من عدم الحظر
+        return () => clearInterval(timer)
+      } else if (timeSinceLastAttempt >= blockDuration) {
+        localStorage.removeItem('loginAttempts')
+        localStorage.removeItem('lastLoginAttempt')
+      } else {
+        setAttempts(attemptCount)
+      }
+    }
   }, [])
 
   const sendSecurityAlert = async (message: string) => {
@@ -149,11 +143,10 @@ function LoginContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // تم تعطيل هذا الشرط مؤقتًا لأغراض الاختبار
-    // if (isBlocked) {
-    //   setError(`تم حظر تسجيل الدخول لمدة ${Math.ceil(blockTimeLeft / 60)} دقيقة`)
-    //   return
-    // }
+    if (isBlocked) {
+      setError(`تم حظر تسجيل الدخول لمدة ${Math.ceil(blockTimeLeft / 60)} دقيقة`)
+      return
+    }
 
     setIsLoading(true)
     setError("")
@@ -170,14 +163,14 @@ function LoginContent() {
       console.log('تم تسجيل الدخول بنجاح:', user.username)
       
       const token = generateSecureToken()
+      const csrfToken = generateCSRFToken()
       const loginTime = Date.now().toString()
 
       // حفظ بيانات الجلسة الآمنة
       localStorage.setItem('adminToken', token)
       localStorage.setItem('loginTime', loginTime)
-      localStorage.setItem('csrfToken', generateCSRFToken())
+      localStorage.setItem('csrfToken', csrfToken)
       localStorage.setItem('currentUserId', user.id)
-      localStorage.setItem('isAdmin', user.role === 'admin' ? 'true' : 'false')
       
       // مسح محاولات تسجيل الدخول الفاشلة
       localStorage.removeItem('loginAttempts')
@@ -187,7 +180,7 @@ function LoginContent() {
       sendSecurityAlert(`تم تسجيل دخول ناجح للمستخدم: ${user.username}`)
 
       // إعادة توجيه إلى لوحة التحكم
-      router.push('/admin-dashboard')
+      router.push('/admin')
     } else {
       // فشل تسجيل الدخول
       console.log('فشل تسجيل الدخول')
@@ -198,15 +191,14 @@ function LoginContent() {
       localStorage.setItem('loginAttempts', newAttempts.toString())
       localStorage.setItem('lastLoginAttempt', Date.now().toString())
       
-      // تم تعطيل هذا الشرط مؤقتًا لأغراض الاختبار
-      // if (newAttempts >= 5) {
-      //   setIsBlocked(true)
-      //   setBlockTimeLeft(15 * 60) // 15 دقيقة
-      //   setError('تم حظر تسجيل الدخول لمدة 15 دقيقة بسبب المحاولات المتكررة')
-      //   sendSecurityAlert(`محاولات دخول فاشلة متكررة من المستخدم: ${credentials.username}`)
-      // } else {
+      if (newAttempts >= 5) {
+        setIsBlocked(true)
+        setBlockTimeLeft(15 * 60) // 15 دقيقة
+        setError('تم حظر تسجيل الدخول لمدة 15 دقيقة بسبب المحاولات المتكررة')
+        sendSecurityAlert(`محاولات دخول فاشلة متكررة من المستخدم: ${credentials.username}`)
+      } else {
         setError(`بيانات تسجيل الدخول غير صحيحة. المحاولات المتبقية: ${5 - newAttempts}`)
-      // }
+      }
     }
 
     setIsLoading(false)
@@ -298,153 +290,173 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[100dvh] bg-muted">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Enter your email and password to access your account.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="username">Email</Label>
-              <Input
-                id="username"
-                type="email"
-                placeholder="m@example.com"
-                value={credentials.username}
-                onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={credentials.password}
-                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                disabled={isLoading}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[url('/placeholder.svg?height=100&width=100&text=pattern')] opacity-5"></div>
+
+      <div className="relative z-10 w-full max-w-md px-4">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+            <Shield className="h-10 w-10" />
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">MusafireenDj</h1>
+          <p className="text-gray-300">لوحة التحكم الآمنة</p>
+        </div>
+
+        {/* Security Alerts */}
+        {expired && (
+          <Alert className="mb-6 border-yellow-500 bg-yellow-500/10">
+            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+            <AlertDescription className="text-yellow-200">
+              انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {isBlocked && (
+          <Alert className="mb-6 border-red-500 bg-red-500/10">
+            <Lock className="h-4 w-4 text-red-500" />
+            <AlertDescription className="text-red-200">
+              تم حظر تسجيل الدخول لمدة {formatTime(blockTimeLeft)} بسبب المحاولات المتكررة
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Login Form */}
+        <Card className="bg-gray-800 border-gray-700 shadow-2xl">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl text-white">تسجيل دخول آمن</CardTitle>
+            <CardDescription className="text-gray-300">
+              أدخل بيانات المستخدم للوصول إلى لوحة التحكم
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <Alert className="border-red-500 bg-red-500/10">
+                  <AlertTriangle className="h-4 w-4 text-red-500" />
+                  <AlertDescription className="text-red-200">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-white">
+                  اسم المستخدم
+                </Label>
+                <div className="relative">
+                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={credentials.username}
+                    onChange={handleChange}
+                    placeholder="admin"
+                    className="bg-gray-700 border-gray-600 text-white pr-10 focus:border-orange-500 focus:ring-orange-500"
+                    disabled={isBlocked || isLoading}
+                    required
+                    autoComplete="username"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white">
+                  كلمة المرور
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={credentials.password}
+                    onChange={handleChange}
+                    placeholder="admin123"
+                    className="bg-gray-700 border-gray-600 text-white pr-10 pl-10 focus:border-orange-500 focus:ring-orange-500"
+                    disabled={isBlocked || isLoading}
+                    required
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                    disabled={isBlocked || isLoading}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-orange-400 hover:text-orange-300 text-sm"
+                >
+                  نسيت كلمة المرور؟
+                </button>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading || isBlocked}
+                className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold py-3 disabled:opacity-50"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+                {isLoading ? "جاري التحقق..." : isBlocked ? `محظور (${formatTime(blockTimeLeft)})` : "تسجيل دخول آمن"}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <Link href="/" className="text-orange-400 hover:text-orange-300 text-sm">
+                العودة إلى الموقع الرئيسي
+              </Link>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
-            </Button>
-          </form>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{' '}
-            <Link href="#" className="underline" prefetch={false}>
-              Sign up
-            </Link>
-          </div>
-          <div className="mt-2 text-center text-sm">
-            Are you an admin?{' '}
-            <Link href={ADMIN_LOGIN_PATH} className="underline" prefetch={false}>
-              Admin Login
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+
+            {/* Demo Credentials */}
+            <div className="mt-6 p-4 bg-gray-700/50 rounded-lg">
+              <p className="text-gray-300 text-sm text-center mb-2">بيانات تجريبية:</p>
+              <p className="text-orange-400 text-sm text-center">المستخدم: admin</p>
+              <p className="text-orange-400 text-sm text-center">كلمة المرور: admin123</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Security Info */}
+        <div className="mt-6 text-center">
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-center mb-2">
+                <Shield className="h-4 w-4 text-green-400 mr-2" />
+                <p className="text-green-400 text-sm">محمي بتشفير متقدم</p>
+              </div>
+              <p className="text-gray-400 text-xs">
+                جلسة آمنة • حماية من CSRF • تشفير البيانات • تنبيهات أمنية
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
-  const router = useRouter()
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    // Temporarily disable login blocking for testing
-    // if (email === 'blocked@example.com') {
-    //   toast({
-    //     title: 'Login Failed',
-    //     description: 'This account is temporarily blocked. Please try again later.',
-    //     variant: 'destructive',
-    //   });
-    //   setIsLoading(false);
-    //   return;
-    // }
-
-    const result = await login(email, password)
-
-    if (result.success) {
-      toast({
-        title: 'Login Successful',
-        description: 'Welcome back!',
-      })
-      router.push('/properties'); // Redirect to a user dashboard or properties page
-    } else {
-      toast({
-        title: 'Login Failed',
-        description: result.message || 'Invalid email or password.',
-        variant: 'destructive',
-      })
-    }
-    setIsLoading(false)
-  }
-
   return (
-    <div className="flex items-center justify-center min-h-[100dvh] bg-muted">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Enter your email and password to access your account.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Logging in...' : 'Login'}
-            </Button>
-          </form>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{' '}
-            <Link href="#" className="underline" prefetch={false}>
-              Sign up
-            </Link>
-          </div>
-          <div className="mt-2 text-center text-sm">
-            Are you an admin?{' '}
-            <Link href={ADMIN_LOGIN_PATH} className="underline" prefetch={false}>
-              Admin Login
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <div className="text-white text-xl">جاري التحميل...</div>
+        </div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }

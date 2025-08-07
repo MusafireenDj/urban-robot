@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss";
+import type { Config } from "tailwindcss"
 
 const config = {
   darkMode: ["class"],
@@ -47,12 +47,6 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Custom colors based on CSS variables
-        'custom-primary': 'var(--primary-color)',
-        'custom-secondary': 'var(--secondary-color)',
-        'custom-accent': 'var(--accent-color)',
-        'custom-background': 'var(--background-color)',
-        'custom-text': 'var(--text-color)',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -68,14 +62,64 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        fadeInUp: {
+          from: {
+            opacity: "0",
+            transform: "translateY(30px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        bounce: {
+          "0%, 20%, 53%, 80%, 100%": {
+            "animation-timing-function": "cubic-bezier(0.215, 0.610, 0.355, 1.000)",
+            transform: "translate3d(0,0,0)",
+          },
+          "40%, 43%": {
+            "animation-timing-function": "cubic-bezier(0.755, 0.050, 0.855, 0.060)",
+            transform: "translate3d(0, -30px, 0)",
+          },
+          "70%": {
+            "animation-timing-function": "cubic-bezier(0.755, 0.050, 0.855, 0.060)",
+            transform: "translate3d(0, -15px, 0)",
+          },
+          "90%": {
+            transform: "translate3d(0,-4px,0)",
+          },
+        },
+        pulse: {
+          "0%": {
+            opacity: "1",
+          },
+          "50%": {
+            opacity: ".5",
+          },
+          "100%": {
+            opacity: "1",
+          },
+        },
+        spin: {
+          from: {
+            transform: "rotate(0deg)",
+          },
+          to: {
+            transform: "rotate(360deg)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        fadeInUp: "fadeInUp 0.6s ease-out",
+        bounce: "bounce 1s infinite",
+        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        spin: "spin 1s linear infinite",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+} satisfies Config
 
-export default config;
+export default config

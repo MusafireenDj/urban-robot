@@ -1,57 +1,75 @@
-import type { Metadata } from 'next';
-import { loadSettings } from './settings';
+// تحسين محركات البحث (SEO)
+export const siteMetadata = {
+  title: 'MusafireenDj - أفضل العقارات للإيجار في جيبوتي',
+  description: 'اعثر على منزلك في جيبوتي مع MusafireenDj. أفضل الشقق والمنازل للإيجار في جيبوتي بأسعار مناسبة وخدمة متميزة. شقق مفروشة، فيلل، استوديوهات في أفضل المناطق.',
+  keywords: [
+    'عقارات جيبوتي',
+    'شقق للإيجار جيبوتي',
+    'منازل جيبوتي',
+    'سكن جيبوتي',
+    'إيجار شقق جيبوتي',
+    'عقارات للإيجار',
+    'MusafireenDj',
+    'Djibouti rentals',
+    'Djibouti apartments',
+    'Djibouti housing',
+    'منزلك في جيبوتي',
+    'بيوت جيبوتي'
+  ],
+  author: 'MusafireenDj',
+  siteUrl: 'https://musafireendj.com',
+  image: '/og-image.jpg',
+  twitterHandle: '@MusafireenDj',
+  language: 'ar',
+  locale: 'ar_DJ'
+}
 
-export function generateMetadata(pageTitle?: string, pageDescription?: string): Metadata {
-  const settings = loadSettings(); // This will load default settings on server, actual settings on client
-  const title = pageTitle ? `${pageTitle} | ${settings.siteName}` : settings.siteName;
-  const description = pageDescription || settings.siteDescription;
-
+export const generateMetaTags = (pageTitle?: string, pageDescription?: string) => {
+  const title = pageTitle ? `${pageTitle} | ${siteMetadata.title}` : siteMetadata.title
+  const description = pageDescription || siteMetadata.description
+  
   return {
     title,
     description,
-    metadataBase: new URL('https://www.musafireendj.com'), // Replace with your actual domain
-    openGraph: {
-      title,
-      description,
-      url: 'https://www.musafireendj.com', // Replace with your actual domain
-      siteName: settings.siteName,
-      images: [
-        {
-          url: settings.heroImage, // Use the hero image from settings
-          width: 1920,
-          height: 1080,
-          alt: settings.heroTitle,
-        },
-      ],
-      locale: 'ar_DJ', // Arabic (Djibouti)
-      type: 'website',
+    keywords: siteMetadata.keywords.join(', '),
+    author: siteMetadata.author,
+    'og:title': title,
+    'og:description': description,
+    'og:image': siteMetadata.image,
+    'og:url': siteMetadata.siteUrl,
+    'og:type': 'website',
+    'og:locale': siteMetadata.locale,
+    'twitter:card': 'summary_large_image',
+    'twitter:site': siteMetadata.twitterHandle,
+    'twitter:title': title,
+    'twitter:description': description,
+    'twitter:image': siteMetadata.image,
+    'viewport': 'width=device-width, initial-scale=1',
+    'robots': 'index, follow',
+    'googlebot': 'index, follow'
+  }
+}
+
+// Schema.org structured data
+export const generateStructuredData = () => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateAgent',
+    name: 'MusafireenDj',
+    description: siteMetadata.description,
+    url: siteMetadata.siteUrl,
+    telephone: '+253-77-77-77-77',
+    email: 'medalmqaleh@gmail.com',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'شارع الاستقلال',
+      addressLocality: 'جيبوتي سيتي',
+      addressCountry: 'DJ'
     },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [settings.heroImage],
+    areaServed: {
+      '@type': 'City',
+      name: 'جيبوتي'
     },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-    icons: {
-      icon: '/favicon.ico',
-      shortcut: '/favicon-16x16.png',
-      apple: '/apple-touch-icon.png',
-    },
-    manifest: '/site.webmanifest',
-    keywords: ['Djibouti', 'Real Estate', 'Rentals', 'Apartments', 'Houses', 'Property', 'MusafireenDj'],
-    authors: [{ name: 'MusafireenDj Team' }],
-    creator: 'MusafireenDj Team',
-    publisher: 'Vercel',
-  };
+    serviceType: ['تأجير الشقق', 'تأجير المنازل', 'استشارات عقارية']
+  }
 }

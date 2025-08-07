@@ -1,42 +1,34 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from '@/components/ui/toaster';
-import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/settings';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: {
-    default: SITE_NAME,
-    template: `%s | ${SITE_NAME}`,
-  },
-  description: SITE_DESCRIPTION,
-  icons: {
-    icon: '/favicon.ico',
-  },
+  title: 'MusafireenDj - أفضل العقارات للإيجار في جيبوتي',
+  description: 'اعثر على منزلك في جيبوتي مع MusafireenDj. أفضل الشقق والمنازل للإيجار في جيبوتي بأسعار مناسبة وخدمة متميزة.',
+  keywords: 'عقارات جيبوتي, شقق للإيجار جيبوتي, منازل جيبوتي, سكن جيبوتي, إيجار شقق جيبوتي',
+  authors: [{ name: 'MusafireenDj' }],
+  viewport: 'width=device-width, initial-scale=1',
+  robots: 'index, follow',
     generator: 'v0.dev'
-};
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ar" dir="rtl">
+      <head>
+        <link rel="canonical" href="https://musafireendj.com" />
+        <meta name="theme-color" content="#f97316" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        {children}
       </body>
     </html>
-  );
+  )
 }
