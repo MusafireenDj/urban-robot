@@ -1,69 +1,45 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { validateSession } from '@/lib/auth'
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { validateSessionServer } from '@/lib/auth';
+import { ADMIN_LOGIN_PATH } from '@/lib/settings';
+import { Loader2 } from 'lucide-react';
 
 interface AdminGuardProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export default function AdminGuard({ children }: AdminGuardProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    const checkAuth = () => {
-      try {
-        const token = localStorage.getItem('adminToken')
-        const timestamp = localStorage.getItem('loginTime')
-        const csrfToken = localStorage.getItem('csrfToken')
-
-        if (!token || !timestamp || !csrfToken) {
-          router.push('/login')
-          return
-        }
-
-        if (!validateSession(token, timestamp)) {
-          // انتهت صلاحية الجلسة
-          localStorage.removeItem('adminToken')
-          localStorage.removeItem('loginTime')
-          localStorage.removeItem('csrfToken')
-          router.push('/login?expired=true')
-          return
-        }
-
-        setIsAuthenticated(true)
-      } catch (error) {
-        console.error('Authentication error:', error)
-        router.push('/login')
-      } finally {
-        setIsLoading(false)
+    const checkAuth = async () => {
+      const session = await validateSessionServer();
+      if (session?.role === 'admin') {
+        setIsAuthorized(true);
+      } else {
+        router.replace(ADMIN_LOGIN_PATH);
       }
-    }
+      setIsLoading(false);
+    };
 
-    checkAuth()
-
-    // فحص دوري كل 5 دقائق
-    const interval = setInterval(checkAuth, 5 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [router])
+    checkAuth();
+  }, [router]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <div className="text-white text-xl">جاري التحقق من الصلاحيات...</div>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
-  if (!isAuthenticated) {
-    return null
+  if (!isAuthorized) {
+    return null; // Or a message indicating redirection
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }

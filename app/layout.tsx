@@ -1,37 +1,42 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { generateMetaTags, generateStructuredData } from '@/lib/seo'
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/toaster';
+import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/settings';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = generateMetaTags()
+export const metadata: Metadata = {
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  icons: {
+    icon: '/favicon.ico',
+  },
+    generator: 'v0.dev'
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
-  const structuredData = generateStructuredData()
-
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="ar" dir="rtl">
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData),
-          }}
-        />
-        <link rel="canonical" href="https://musafireendj.com" />
-        <meta name="google-site-verification" content="your-google-verification-code" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#f97316" />
-      </head>
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

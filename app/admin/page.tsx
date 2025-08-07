@@ -14,11 +14,25 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import MediaUpload from "@/components/media-upload"
 import ImageUpload from "@/components/image-upload"
 import UserManagement from "@/components/user-management"
+import ThemeCustomizer from "@/components/theme-customizer"
 import AdminGuard from "@/components/admin-guard"
-import { MapPin, Save, Eye, LogOut, Plus, Edit, Settings, Shield, CheckCircle, Users, ImageIcon } from 'lucide-react'
-import { SiteSettings, defaultSettings, saveSettings, loadSettings } from "@/lib/settings"
+import { Calendar, DollarSign, Users, Home, BarChart, Settings, ImageIcon } from 'lucide-react'
+import { InlineEditor } from "@/components/inline-editor"
+import { SiteSettings, defaultSettings, saveSettings, loadSettings, applyTheme } from "@/lib/settings"
 import { sanitizeInput } from "@/lib/auth"
 import { UserManager, User, PERMISSIONS } from "@/lib/auth"
+import Link from 'next/link'
+import { Suspense } from 'react'
+import { validateSession } from '@/lib/auth';
+import { ADMIN_DASHBOARD_PATH } from '@/lib/settings';
+import { redirect } from 'next/navigation';
+
+export default function AdminPage() {
+  // This page simply redirects to the admin dashboard.
+  // The actual authentication check happens in middleware.ts and AdminGuard.
+  redirect(ADMIN_DASHBOARD_PATH);
+  return null;
+}
 
 function AdminContent() {
   const [activeTab, setActiveTab] = useState("add-property")
@@ -43,21 +57,21 @@ function AdminContent() {
   })
 
   useEffect(() => {
-    setSettings(loadSettings())
+    const loadedSettings = loadSettings()
+    setSettings(loadedSettings)
+    applyTheme(loadedSettings.theme)
     
     // تحميل بيانات المستخدم الحالي
     const userId = localStorage.getItem('currentUserId')
     if (userId) {
       const user = UserManager.getUserById(userId)
       setCurrentUser(user)
-    }
-  }, [])
-      const user = UserManager.getUserById(userId)
-      setCurrentUser(user)
+      console.log('👤 المستخدم الحالي:', user?.username)
     }
   }, [])
 
   const handleLogout = () => {
+    console.log('🚪 تسجيل خروج المستخدم')
     localStorage.removeItem('adminToken')
     localStorage.removeItem('loginTime')
     localStorage.removeItem('csrfToken')
@@ -77,7 +91,7 @@ function AdminContent() {
       ownerName: sanitizeInput(propertyData.ownerName),
     }
 
-    console.log("Property data:", cleanedData)
+    console.log("✅ بيانات العقار:", cleanedData)
     alert("تم حفظ العقار بنجاح!")
 
     // إعادة تعيين النموذج
@@ -112,10 +126,10 @@ function AdminContent() {
         const [parent, child] = field.split('.')
         ;(newSettings as any)[parent] = {
           ...(newSettings as any)[parent],
-          [child]: sanitizeInput(value)
+          [child]: typeof value === 'string' ? sanitizeInput(value) : value
         }
       } else {
-        ;(newSettings as any)[field] = value
+        ;(newSettings as any)[field] = typeof value === 'string' ? sanitizeInput(value) : value
       }
       
       return newSettings
@@ -128,9 +142,12 @@ function AdminContent() {
     setTimeout(() => {
       try {
         saveSettings(settings)
+        applyTheme(settings.theme)
         setSaveStatus('saved')
+        console.log('💾 تم حفظ الإعدادات بنجاح')
         setTimeout(() => setSaveStatus('idle'), 2000)
       } catch (error) {
+        console.error('❌ خطأ في حفظ الإعدادات:', error)
         setSaveStatus('error')
         setTimeout(() => setSaveStatus('idle'), 2000)
       }
@@ -163,7 +180,7 @@ function AdminContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
               <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-3 rounded-lg">
-                <Shield className="h-6 w-6" />
+                <Home className="h-6 w-6" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">MusafireenDj</h1>
@@ -181,7 +198,7 @@ function AdminContent() {
                 variant="outline"
                 className="border-gray-600 text-gray-300 hover:bg-gray-700 bg-transparent"
               >
-                <LogOut className="h-4 w-4 ml-2" />
+                <Home className="h-4 w-4 ml-2" />
                 خروج آمن
               </Button>
             </div>
@@ -193,16 +210,20 @@ function AdminContent() {
         <div className="max-w-6xl mx-auto">
           {/* Navigation Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <TabsList className="grid w-full grid-cols-5 bg-gray-800">
+            <TabsList className="grid w-full grid-cols-6 bg-gray-800">
+              <TabsTrigger value="dashboard" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500">
+                <Home className="h-4 w-4 ml-2" />
+                الرئيسية
+              </TabsTrigger>
               {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_PROPERTIES) && (
                 <TabsTrigger value="add-property" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500">
-                  <Plus className="h-4 w-4 ml-2" />
+                  <Calendar className="h-4 w-4 ml-2" />
                   إضافة عقار
                 </TabsTrigger>
               )}
               {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_PROPERTIES) && (
                 <TabsTrigger value="manage-properties" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500">
-                  <Edit className="h-4 w-4 ml-2" />
+                  <Calendar className="h-4 w-4 ml-2" />
                   إدارة العقارات
                 </TabsTrigger>
               )}
@@ -219,12 +240,95 @@ function AdminContent() {
                 </TabsTrigger>
               )}
               {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_SETTINGS) && (
+                <TabsTrigger value="theme" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500">
+                  <Settings className="h-4 w-4 ml-2" />
+                  تخصيص الثيم
+                </TabsTrigger>
+              )}
+              {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_SETTINGS) && (
                 <TabsTrigger value="settings" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-yellow-500">
                   <Settings className="h-4 w-4 ml-2" />
                   إعدادات الموقع
                 </TabsTrigger>
               )}
             </TabsList>
+
+            {/* Dashboard Tab */}
+            <TabsContent value="dashboard">
+              <div className="space-y-8">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        إجمالي العقارات
+                      </CardTitle>
+                      <Home className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">2,350</div>
+                      <p className="text-xs text-muted-foreground">
+                        +20.1% من الشهر الماضي
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        المستخدمون النشطون
+                      </CardTitle>
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">+1,234</div>
+                      <p className="text-xs text-muted-foreground">
+                        +180.1% من الشهر الماضي
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        الزيارات اليومية
+                      </CardTitle>
+                      <BarChart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">573,000</div>
+                      <p className="text-xs text-muted-foreground">
+                        +12% من الشهر الماضي
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        العقارات المعلقة
+                      </CardTitle>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">12</div>
+                      <p className="text-xs text-muted-foreground">
+                        تحتاج إلى مراجعة
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+                <div className="mt-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>تحرير المحتوى المباشر</CardTitle>
+                      <CardDescription>
+                        قم بتحرير النصوص والصور مباشرة على صفحات الموقع.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <InlineEditor />
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
 
             {/* Add Property Tab */}
             {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_PROPERTIES) && (
@@ -474,7 +578,7 @@ function AdminContent() {
                         variant="outline"
                         className="border-gray-600 text-gray-300 hover:bg-gray-700 bg-transparent"
                       >
-                        <Eye className="h-4 w-4 ml-2" />
+                        <Home className="h-4 w-4 ml-2" />
                         معاينة
                       </Button>
 
@@ -482,7 +586,7 @@ function AdminContent() {
                         type="submit"
                         className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white"
                       >
-                        <Save className="h-4 w-4 ml-2" />
+                        <Home className="h-4 w-4 ml-2" />
                         حفظ العقار
                       </Button>
                     </div>
@@ -541,6 +645,24 @@ function AdminContent() {
             {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_USERS) && (
               <TabsContent value="users">
                 <UserManagement currentUser={currentUser} />
+              </TabsContent>
+            )}
+
+            {/* Theme Customizer Tab */}
+            {UserManager.hasPermission(currentUser, PERMISSIONS.MANAGE_SETTINGS) && (
+              <TabsContent value="theme">
+                <div className="space-y-8">
+                  <div>
+                    <h2 className="text-3xl font-bold text-white mb-2">تخصيص الألوان والمظهر</h2>
+                    <p className="text-gray-300">قم بتخصيص ألوان الموقع والمظهر العام</p>
+                  </div>
+
+                  <ThemeCustomizer
+                    settings={settings}
+                    onSettingsChange={handleSettingsChange}
+                    onSave={handleSaveSettings}
+                  />
+                </div>
               </TabsContent>
             )}
 
@@ -757,15 +879,15 @@ function AdminContent() {
                         className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white"
                       >
                         {saveStatus === 'saving' && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />}
-                        {saveStatus === 'saved' && <CheckCircle className="h-4 w-4 ml-2" />}
-                        <Save className="h-4 w-4 ml-2" />
+                        {saveStatus === 'saved' && <Home className="h-4 w-4 ml-2" />}
+                        <Home className="h-4 w-4 ml-2" />
                         {saveStatus === 'saving' ? 'جاري الحفظ...' : saveStatus === 'saved' ? 'تم الحفظ!' : 'حفظ الإعدادات'}
                       </Button>
                     </div>
 
                     {saveStatus === 'saved' && (
                       <Alert className="border-green-500 bg-green-500/10">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <Home className="h-4 w-4 text-green-500" />
                         <AlertDescription className="text-green-200">
                           تم حفظ الإعدادات بنجاح!
                         </AlertDescription>
@@ -779,13 +901,5 @@ function AdminContent() {
         </div>
       </div>
     </div>
-  )
-}
-
-export default function AdminPage() {
-  return (
-    <AdminGuard>
-      <AdminContent />
-    </AdminGuard>
   )
 }
