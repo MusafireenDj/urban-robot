@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -38,13 +37,6 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-
-  /* Custom Theme Variables */
-  --primary-color: #f97316;
-  --secondary-color: #eab308;
-  --text-color: #ffffff;
-  --background-color: #1f2937;
-  --border-color: #374151;
 }
 
 .dark {
@@ -123,7 +115,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
@@ -138,7 +130,7 @@
 }
 
 .gradient-orange {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 }
 
 .gradient-gold {
@@ -160,12 +152,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
+  background: #f97316;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-color);
+  background: #ea580c;
 }
 
 /* Smooth transitions */
@@ -190,59 +182,8 @@ body {
   }
 }
 
-@keyframes bounce {
-  0%, 20%, 53%, 80%, 100% {
-    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
-    transform: translate3d(0,0,0);
-  }
-  40%, 43% {
-    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
-    transform: translate3d(0, -30px, 0);
-  }
-  70% {
-    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
-    transform: translate3d(0, -15px, 0);
-  }
-  90% {
-    transform: translate3d(0,-4px,0);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: .5;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .animate-fadeInUp {
   animation: fadeInUp 0.6s ease-out;
-}
-
-.animate-bounce {
-  animation: bounce 1s infinite;
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
 }
 
 /* Hover effects */
@@ -269,35 +210,4 @@ body {
 
 .orange-glow:hover {
   box-shadow: 0 0 30px rgba(249, 115, 22, 0.5);
-}
-
-/* Hero overlay text */
-.hero-overlay {
-  background: linear-gradient(45deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
-  backdrop-filter: blur(2px);
-}
-
-/* Dynamic theme colors */
-.bg-primary-custom {
-  background-color: var(--primary-color);
-}
-
-.bg-secondary-custom {
-  background-color: var(--secondary-color);
-}
-
-.text-primary-custom {
-  color: var(--primary-color);
-}
-
-.text-secondary-custom {
-  color: var(--secondary-color);
-}
-
-.border-primary-custom {
-  border-color: var(--primary-color);
-}
-
-.border-secondary-custom {
-  border-color: var(--secondary-color);
 }

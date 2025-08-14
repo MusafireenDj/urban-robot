@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MapPin, Phone, Mail, MessageCircle, Bed, Bath, Square, Star, Search, Filter } from 'lucide-react'
+import { MapPin, Phone, Mail, MessageCircle, Bed, Bath, Square, Star, Search, Filter } from "lucide-react"
 
 export default function PropertiesPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -116,9 +116,9 @@ export default function PropertiesPage() {
 
     const matchesPrice =
       priceRange === "all" ||
-      (priceRange === "low" && parseInt(property.price) < 600) ||
-      (priceRange === "medium" && parseInt(property.price) >= 600 && parseInt(property.price) <= 1200) ||
-      (priceRange === "high" && parseInt(property.price) > 1200)
+      (priceRange === "low" && Number.parseInt(property.price) < 600) ||
+      (priceRange === "medium" && Number.parseInt(property.price) >= 600 && Number.parseInt(property.price) <= 1200) ||
+      (priceRange === "high" && Number.parseInt(property.price) > 1200)
 
     const matchesType = propertyType === "all" || property.type === propertyType
 
@@ -138,7 +138,7 @@ export default function PropertiesPage() {
                 <MapPin className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">MusafireenDj</h1>
+                <h1 className="text-2xl font-bold text-white">منازل جيبوتي</h1>
                 <p className="text-sm text-gray-400">أفضل الشقق للإيجار</p>
               </div>
             </div>
@@ -154,6 +154,9 @@ export default function PropertiesPage() {
               </Link>
               <Link href="/contact" className="text-gray-400 hover:text-orange-400 transition-colors">
                 اتصل بنا
+              </Link>
+              <Link href="/login" className="text-gray-400 hover:text-orange-400 transition-colors">
+                تسجيل الدخول
               </Link>
             </nav>
           </div>
@@ -330,7 +333,7 @@ export default function PropertiesPage() {
                 <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-2 rounded-lg">
                   <MapPin className="h-5 w-5" />
                 </div>
-                <h4 className="text-xl font-bold">MusafireenDj</h4>
+                <h4 className="text-xl font-bold">منازل جيبوتي</h4>
               </div>
               <p className="text-gray-400">
                 نحن نقدم أفضل الخدمات العقارية في جيبوتي مع التزام كامل بالجودة والمصداقية.
@@ -378,11 +381,11 @@ export default function PropertiesPage() {
               <div className="space-y-2 text-gray-400">
                 <p className="flex items-center">
                   <Phone className="h-4 w-4 ml-2" />
-                  +253-77-77-77-77
+                  +253 77 77 77 77
                 </p>
                 <p className="flex items-center">
                   <Mail className="h-4 w-4 ml-2" />
-                  medalmqaleh@gmail.com
+                  info@djiboutihomes.com
                 </p>
                 <p className="flex items-center">
                   <MapPin className="h-4 w-4 ml-2" />
@@ -393,7 +396,7 @@ export default function PropertiesPage() {
           </div>
 
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 MusafireenDj. جميع الحقوق محفوظة.</p>
+            <p>&copy; 2024 منازل جيبوتي. جميع الحقوق محفوظة.</p>
           </div>
         </div>
       </footer>

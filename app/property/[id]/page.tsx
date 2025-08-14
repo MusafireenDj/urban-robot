@@ -7,14 +7,32 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { MapPin, Phone, Mail, MessageCircle, Bed, Bath, Square, Star, ArrowLeft, Play, Wifi, Car, Shield, Utensils, Tv, Wind } from 'lucide-react'
+import {
+  MapPin,
+  Phone,
+  Mail,
+  MessageCircle,
+  Bed,
+  Bath,
+  Square,
+  Star,
+  ArrowLeft,
+  Play,
+  Wifi,
+  Car,
+  Shield,
+  Utensils,
+  Tv,
+  Wind,
+} from "lucide-react"
+import { Label } from "@/components/ui/label"
 
 export default function PropertyDetailsPage({ params }: { params: { id: string } }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-  // Mock property data
+  // Mock property data - في التطبيق الحقيقي، ستحصل على البيانات من قاعدة البيانات
   const property = {
-    id: parseInt(params.id),
+    id: Number.parseInt(params.id),
     title: "شقة فاخرة في وسط المدينة",
     location: "جيبوتي سيتي، شارع الاستقلال",
     price: "800",
@@ -53,38 +71,38 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
     ],
     landlord: {
       name: "أحمد محمد",
-      phone: "+253-77-77-77-77",
+      phone: "+253 XX XX XX XX",
       email: "ahmed@example.com",
-      whatsapp: "+25377777777",
+      whatsapp: "+253XXXXXXXX",
     },
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="bg-gray-800 shadow-lg sticky top-0 z-50">
+      <header className="bg-white shadow-lg sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-3 rounded-lg">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-lg">
                 <MapPin className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">MusafireenDj</h1>
-                <p className="text-sm text-gray-300">أفضل الشقق للإيجار</p>
+                <h1 className="text-2xl font-bold text-gray-800">عقارات جيبوتي</h1>
+                <p className="text-sm text-gray-600">أفضل الشقق للإيجار</p>
               </div>
             </div>
             <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
-              <Link href="/" className="text-gray-300 hover:text-orange-400 transition-colors">
+              <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
                 الرئيسية
               </Link>
-              <Link href="/properties" className="text-gray-300 hover:text-orange-400 transition-colors">
+              <Link href="/properties" className="text-gray-600 hover:text-blue-600 transition-colors">
                 العقارات
               </Link>
-              <Link href="/about" className="text-gray-300 hover:text-orange-400 transition-colors">
+              <Link href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
                 من نحن
               </Link>
-              <Link href="/contact" className="text-gray-300 hover:text-orange-400 transition-colors">
+              <Link href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
                 اتصل بنا
               </Link>
             </nav>
@@ -93,18 +111,18 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
       </header>
 
       {/* Breadcrumb */}
-      <div className="bg-gray-800 py-4 border-b border-gray-700">
+      <div className="bg-white py-4 border-b">
         <div className="container mx-auto px-4">
-          <div className="flex items-center space-x-2 rtl:space-x-reverse text-sm text-gray-400">
-            <Link href="/" className="hover:text-orange-400">
+          <div className="flex items-center space-x-2 rtl:space-x-reverse text-sm text-gray-600">
+            <Link href="/" className="hover:text-blue-600">
               الرئيسية
             </Link>
             <span>/</span>
-            <Link href="/properties" className="hover:text-orange-400">
+            <Link href="/properties" className="hover:text-blue-600">
               العقارات
             </Link>
             <span>/</span>
-            <span className="text-white">{property.title}</span>
+            <span className="text-gray-800">{property.title}</span>
           </div>
         </div>
       </div>
@@ -113,7 +131,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Back Button */}
-          <Button variant="outline" className="mb-6 bg-transparent border-gray-600 text-gray-300 hover:bg-gray-700" asChild>
+          <Button variant="outline" className="mb-6 bg-transparent" asChild>
             <Link href="/properties">
               <ArrowLeft className="h-4 w-4 ml-2" />
               العودة للعقارات
@@ -124,7 +142,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
             {/* Left Column - Images and Details */}
             <div className="lg:col-span-2 space-y-6">
               {/* Image Gallery */}
-              <Card className="overflow-hidden bg-gray-800 border-gray-700">
+              <Card className="overflow-hidden">
                 <div className="relative">
                   <Image
                     src={property.images[currentImageIndex] || "/placeholder.svg"}
@@ -159,7 +177,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
                         className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 ${
-                          currentImageIndex === index ? "border-orange-500" : "border-gray-600"
+                          currentImageIndex === index ? "border-blue-500" : "border-gray-200"
                         }`}
                       >
                         <Image
@@ -176,10 +194,10 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
               </Card>
 
               {/* Property Info */}
-              <Card className="bg-gray-800 border-gray-700">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl text-white">{property.title}</CardTitle>
-                  <CardDescription className="flex items-center text-gray-300 text-lg">
+                  <CardTitle className="text-2xl text-gray-800">{property.title}</CardTitle>
+                  <CardDescription className="flex items-center text-gray-600 text-lg">
                     <MapPin className="h-5 w-5 ml-1" />
                     {property.location}
                   </CardDescription>
@@ -188,10 +206,10 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                 <CardContent className="space-y-6">
                   {/* Price and Basic Info */}
                   <div className="flex items-center justify-between">
-                    <div className="text-3xl font-bold text-orange-400">
+                    <div className="text-3xl font-bold text-blue-600">
                       ${property.price} <span className="text-lg text-gray-500">{property.period}</span>
                     </div>
-                    <div className="flex items-center space-x-6 rtl:space-x-reverse text-gray-300">
+                    <div className="flex items-center space-x-6 rtl:space-x-reverse text-gray-600">
                       <div className="flex items-center">
                         <Bed className="h-5 w-5 ml-1" />
                         <span className="font-semibold">{property.bedrooms}</span> غرف نوم
@@ -207,41 +225,41 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                     </div>
                   </div>
 
-                  <Separator className="bg-gray-600" />
+                  <Separator />
 
                   {/* Description */}
                   <div>
-                    <h3 className="text-xl font-semibold mb-3 text-white">وصف العقار</h3>
-                    <p className="text-gray-300 leading-relaxed">{property.description}</p>
+                    <h3 className="text-xl font-semibold mb-3">وصف العقار</h3>
+                    <p className="text-gray-600 leading-relaxed">{property.description}</p>
                   </div>
 
-                  <Separator className="bg-gray-600" />
+                  <Separator />
 
                   {/* Amenities */}
                   <div>
-                    <h3 className="text-xl font-semibold mb-4 text-white">المرافق والخدمات</h3>
+                    <h3 className="text-xl font-semibold mb-4">المرافق والخدمات</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       {property.amenities.map((amenity, index) => (
                         <div key={index} className="flex items-center space-x-3 rtl:space-x-reverse">
-                          <div className="bg-orange-100 p-2 rounded-lg">
-                            <amenity.icon className="h-5 w-5 text-orange-600" />
+                          <div className="bg-blue-100 p-2 rounded-lg">
+                            <amenity.icon className="h-5 w-5 text-blue-600" />
                           </div>
-                          <span className="text-gray-300">{amenity.name}</span>
+                          <span className="text-gray-700">{amenity.name}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <Separator className="bg-gray-600" />
+                  <Separator />
 
                   {/* Nearby Places */}
                   <div>
-                    <h3 className="text-xl font-semibold mb-4 text-white">الأماكن القريبة</h3>
+                    <h3 className="text-xl font-semibold mb-4">الأماكن القريبة</h3>
                     <div className="space-y-3">
                       {property.nearbyPlaces.map((place, index) => (
                         <div key={index} className="flex items-center justify-between">
-                          <span className="text-gray-300">{place.name}</span>
-                          <span className="text-orange-400 font-semibold">{place.distance}</span>
+                          <span className="text-gray-700">{place.name}</span>
+                          <span className="text-blue-600 font-semibold">{place.distance}</span>
                         </div>
                       ))}
                     </div>
@@ -253,22 +271,22 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
             {/* Right Column - Contact and Actions */}
             <div className="space-y-6">
               {/* Contact Card */}
-              <Card className="sticky top-24 bg-gray-800 border-gray-700">
+              <Card className="sticky top-24">
                 <CardHeader>
-                  <CardTitle className="text-xl text-white">تواصل مع المالك</CardTitle>
-                  <CardDescription className="text-gray-300">للاستفسار والحجز</CardDescription>
+                  <CardTitle className="text-xl">تواصل مع المالك</CardTitle>
+                  <CardDescription>للاستفسار والحجز</CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
                   <div className="text-center">
-                    <div className="bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
-                      <span className="text-2xl font-bold text-orange-400">{property.landlord.name.charAt(0)}</span>
+                    <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                      <span className="text-2xl font-bold text-gray-600">{property.landlord.name.charAt(0)}</span>
                     </div>
-                    <h4 className="font-semibold text-lg text-white">{property.landlord.name}</h4>
-                    <p className="text-gray-400 text-sm">مالك العقار</p>
+                    <h4 className="font-semibold text-lg">{property.landlord.name}</h4>
+                    <p className="text-gray-600 text-sm">مالك العقار</p>
                   </div>
 
-                  <Separator className="bg-gray-600" />
+                  <Separator />
 
                   <div className="space-y-3">
                     <Button
@@ -286,7 +304,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
 
                     <Button
                       variant="outline"
-                      className="w-full border-orange-500 text-orange-400 hover:bg-orange-50 bg-transparent"
+                      className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 bg-transparent"
                       onClick={() => (window.location.href = `tel:${property.landlord.phone}`)}
                     >
                       <Phone className="h-4 w-4 ml-2" />
@@ -295,7 +313,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
 
                     <Button
                       variant="outline"
-                      className="w-full bg-transparent border-gray-600 text-gray-300 hover:bg-gray-700"
+                      className="w-full bg-transparent"
                       onClick={() =>
                         (window.location.href = `mailto:${property.landlord.email}?subject=استفسار عن ${property.title}`)
                       }
@@ -305,40 +323,40 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                     </Button>
                   </div>
 
-                  <Separator className="bg-gray-600" />
+                  <Separator />
 
-                  <div className="text-center text-sm text-gray-400">
+                  <div className="text-center text-sm text-gray-600">
                     <p>أو اتصل مباشرة على:</p>
-                    <p className="font-semibold text-white">{property.landlord.phone}</p>
+                    <p className="font-semibold text-gray-800">{property.landlord.phone}</p>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Quick Info Card */}
-              <Card className="bg-gray-800 border-gray-700">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-white">معلومات سريعة</CardTitle>
+                  <CardTitle className="text-lg">معلومات سريعة</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">نوع العقار:</span>
-                    <span className="font-semibold text-white">شقة</span>
+                    <span className="text-gray-600">نوع العقار:</span>
+                    <span className="font-semibold">شقة</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">حالة الأثاث:</span>
-                    <span className="font-semibold text-white">مفروش</span>
+                    <span className="text-gray-600">حالة الأثاث:</span>
+                    <span className="font-semibold">مفروش</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">الطابق:</span>
-                    <span className="font-semibold text-white">الثالث</span>
+                    <span className="text-gray-600">الطابق:</span>
+                    <span className="font-semibold">الثالث</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">سنة البناء:</span>
-                    <span className="font-semibold text-white">2020</span>
+                    <span className="text-gray-600">سنة البناء:</span>
+                    <span className="font-semibold">2020</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">متاح من:</span>
-                    <span className="font-semibold text-white">فوراً</span>
+                    <span className="text-gray-600">متاح من:</span>
+                    <span className="font-semibold">فوراً</span>
                   </div>
                 </CardContent>
               </Card>
@@ -347,16 +365,62 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
         </div>
       </div>
 
+      {/* Media Upload Section - للمالك */}
+      <section className="py-12 bg-gray-900">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">إضافة صور وفيديوهات</CardTitle>
+                <CardDescription className="text-gray-300">
+                  يمكن لمالك العقار إضافة المزيد من الصور والفيديوهات
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <Label className="text-white">رفع الصور</Label>
+                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-orange-400 transition-colors">
+                    <div className="text-gray-400">
+                      <svg className="mx-auto h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                      <p className="text-lg">اسحب الصور هنا أو انقر للاختيار</p>
+                      <p className="text-sm">PNG, JPG, GIF حتى 10MB</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-white">رفع الفيديوهات</Label>
+                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-orange-400 transition-colors">
+                    <div className="text-gray-400">
+                      <Play className="mx-auto h-12 w-12 mb-4" />
+                      <p className="text-lg">اسحب الفيديوهات هنا أو انقر للاختيار</p>
+                      <p className="text-sm">MP4, MOV, AVI حتى 100MB</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-12">
+      <footer className="bg-gray-800 text-white py-12 mt-12">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 rtl:space-x-reverse mb-4">
-                <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-2 rounded-lg">
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2 rounded-lg">
                   <MapPin className="h-5 w-5" />
                 </div>
-                <h4 className="text-xl font-bold">MusafireenDj</h4>
+                <h4 className="text-xl font-bold">عقارات جيبوتي</h4>
               </div>
               <p className="text-gray-400">
                 نحن نقدم أفضل الخدمات العقارية في جيبوتي مع التزام كامل بالجودة والمصداقية.
@@ -404,11 +468,11 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
               <div className="space-y-2 text-gray-400">
                 <p className="flex items-center">
                   <Phone className="h-4 w-4 ml-2" />
-                  +253-77-77-77-77
+                  +253 XX XX XX XX
                 </p>
                 <p className="flex items-center">
                   <Mail className="h-4 w-4 ml-2" />
-                  medalmqaleh@gmail.com
+                  info@djibouti-rentals.com
                 </p>
                 <p className="flex items-center">
                   <MapPin className="h-4 w-4 ml-2" />
@@ -419,7 +483,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
           </div>
 
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 MusafireenDj. جميع الحقوق محفوظة.</p>
+            <p>&copy; 2024 عقارات جيبوتي. جميع الحقوق محفوظة.</p>
           </div>
         </div>
       </footer>

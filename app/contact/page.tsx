@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -7,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { MapPin, Phone, Mail, MessageCircle, Clock, Send } from 'lucide-react'
+import { MapPin, Phone, Mail, MessageCircle, Clock, Send } from "lucide-react"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -20,7 +22,9 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+    // هنا يمكنك إضافة منطق إرسال النموذج
+    console.log("Form submitted:", formData)
+    // إعادة توجيه إلى واتساب مع الرسالة
     const whatsappMessage = `مرحباً، اسمي ${formData.name}
 الموضوع: ${formData.subject}
 الرسالة: ${formData.message}
@@ -38,32 +42,35 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="bg-gray-800 shadow-lg sticky top-0 z-50">
+      <header className="bg-white shadow-lg sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-3 rounded-lg">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-lg">
                 <MapPin className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">MusafireenDj</h1>
-                <p className="text-sm text-gray-300">أفضل الشقق للإيجار</p>
+                <h1 className="text-2xl font-bold text-gray-800">عقارات جيبوتي</h1>
+                <p className="text-sm text-gray-600">أفضل الشقق للإيجار</p>
               </div>
             </div>
             <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
-              <Link href="/" className="text-gray-300 hover:text-orange-400 transition-colors">
+              <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
                 الرئيسية
               </Link>
-              <Link href="/properties" className="text-gray-300 hover:text-orange-400 transition-colors">
+              <Link href="/properties" className="text-gray-600 hover:text-blue-600 transition-colors">
                 العقارات
               </Link>
-              <Link href="/about" className="text-gray-300 hover:text-orange-400 transition-colors">
+              <Link href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
                 من نحن
               </Link>
-              <Link href="/contact" className="text-orange-400 font-semibold">
+              <Link href="/contact" className="text-blue-600 font-semibold">
                 اتصل بنا
+              </Link>
+              <Link href="/login" className="text-gray-400 hover:text-orange-400 transition-colors">
+                تسجيل الدخول
               </Link>
             </nav>
           </div>
@@ -73,25 +80,26 @@ export default function ContactPage() {
       {/* Hero Section */}
       <section className="py-20 text-center">
         <div className="container mx-auto px-4">
-          <h2 className="text-5xl font-bold text-white mb-6">تواصل معنا</h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+          <h2 className="text-5xl font-bold text-gray-800 mb-6">تواصل معنا</h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             نحن هنا لمساعدتك في العثور على المنزل المثالي. تواصل معنا عبر أي من الطرق التالية
           </p>
         </div>
       </section>
 
       {/* Contact Methods */}
-      <section className="py-16 bg-gray-800">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-8 mb-16">
-              <Card className="text-center hover:shadow-lg transition-shadow bg-gray-700 border-gray-600">
+              <Card className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
                   <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <Phone className="h-8 w-8 text-blue-600" />
                   </div>
-                  <h4 className="font-semibold mb-2 text-white">اتصل بنا</h4>
-                  <p className="text-gray-300 mb-2">+253-77-77-77-77</p>
+                  <h4 className="font-semibold mb-2">اتصل بنا</h4>
+                  <p className="text-gray-600 mb-2">+253 77777777</p>
+                  <p className="text-gray-600">+253 77777777</p>
                   <Button
                     className="mt-3 w-full bg-transparent"
                     variant="outline"
@@ -102,13 +110,13 @@ export default function ContactPage() {
                 </CardContent>
               </Card>
 
-              <Card className="text-center hover:shadow-lg transition-shadow bg-gray-700 border-gray-600">
+              <Card className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
                   <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <MessageCircle className="h-8 w-8 text-green-600" />
                   </div>
-                  <h4 className="font-semibold mb-2 text-white">واتساب</h4>
-                  <p className="text-gray-300 mb-4">تواصل فوري ومباشر</p>
+                  <h4 className="font-semibold mb-2">واتساب</h4>
+                  <p className="text-gray-600 mb-4">تواصل فوري ومباشر</p>
                   <Button
                     className="bg-green-600 hover:bg-green-700 text-white w-full"
                     onClick={() =>
@@ -120,16 +128,17 @@ export default function ContactPage() {
                 </CardContent>
               </Card>
 
-              <Card className="text-center hover:shadow-lg transition-shadow bg-gray-700 border-gray-600">
+              <Card className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
                   <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <Mail className="h-8 w-8 text-purple-600" />
                   </div>
-                  <h4 className="font-semibold mb-2 text-white">البريد الإلكتروني</h4>
-                  <p className="text-gray-300 mb-2">medalmqaleh@gmail.com</p>
+                  <h4 className="font-semibold mb-2">البريد الإلكتروني</h4>
+                  <p className="text-gray-600 mb-2">medalmqaleh@gmail.com</p>
+                  <p className="text-gray-600 mb-3">medalmqaleh@gmail.com</p>
                   <Button
                     variant="outline"
-                    className="w-full bg-transparent mt-3"
+                    className="w-full bg-transparent"
                     onClick={() => (window.location.href = "mailto:medalmqaleh@gmail.com")}
                   >
                     إرسال إيميل
@@ -137,15 +146,15 @@ export default function ContactPage() {
                 </CardContent>
               </Card>
 
-              <Card className="text-center hover:shadow-lg transition-shadow bg-gray-700 border-gray-600">
+              <Card className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
                   <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <Clock className="h-8 w-8 text-orange-600" />
                   </div>
-                  <h4 className="font-semibold mb-2 text-white">ساعات العمل</h4>
-                  <p className="text-gray-300 mb-1">السبت - الخميس</p>
-                  <p className="text-gray-300 mb-1">8:00 ص - 6:00 م</p>
-                  <p className="text-gray-300">الجمعة: مغلق</p>
+                  <h4 className="font-semibold mb-2">ساعات العمل</h4>
+                  <p className="text-gray-600 mb-1">السبت - الخميس</p>
+                  <p className="text-gray-600 mb-1">8:00 ص - 6:00 م</p>
+                  <p className="text-gray-600">الجمعة: مغلق</p>
                 </CardContent>
               </Card>
             </div>
@@ -154,35 +163,34 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form and Map */}
-      <section className="py-16 bg-gray-900">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-12">
               {/* Contact Form */}
-              <Card className="bg-gray-800 border-gray-700">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl text-white">أرسل لنا رسالة</CardTitle>
-                  <CardDescription className="text-gray-300">املأ النموذج أدناه وسنتواصل معك في أقرب وقت ممكن</CardDescription>
+                  <CardTitle className="text-2xl text-gray-800">أرسل لنا رسالة</CardTitle>
+                  <CardDescription>املأ النموذج أدناه وسنتواصل معك في أقرب وقت ممكن</CardDescription>
                 </CardHeader>
 
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="name" className="text-white">الاسم الكامل *</Label>
+                        <Label htmlFor="name">الاسم الكامل *</Label>
                         <Input
                           id="name"
                           name="name"
                           value={formData.name}
                           onChange={handleChange}
                           placeholder="أدخل اسمك الكامل"
-                          className="bg-gray-700 border-gray-600 text-white"
                           required
                         />
                       </div>
 
                       <div>
-                        <Label htmlFor="phone" className="text-white">رقم الهاتف *</Label>
+                        <Label htmlFor="phone">رقم الهاتف *</Label>
                         <Input
                           id="phone"
                           name="phone"
@@ -190,14 +198,13 @@ export default function ContactPage() {
                           value={formData.phone}
                           onChange={handleChange}
                           placeholder="+253 XX XX XX XX"
-                          className="bg-gray-700 border-gray-600 text-white"
                           required
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="email" className="text-white">البريد الإلكتروني *</Label>
+                      <Label htmlFor="email">البريد الإلكتروني *</Label>
                       <Input
                         id="email"
                         name="email"
@@ -205,26 +212,24 @@ export default function ContactPage() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="example@email.com"
-                        className="bg-gray-700 border-gray-600 text-white"
                         required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="subject" className="text-white">الموضوع *</Label>
+                      <Label htmlFor="subject">الموضوع *</Label>
                       <Input
                         id="subject"
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
                         placeholder="موضوع الرسالة"
-                        className="bg-gray-700 border-gray-600 text-white"
                         required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="message" className="text-white">الرسالة *</Label>
+                      <Label htmlFor="message">الرسالة *</Label>
                       <Textarea
                         id="message"
                         name="message"
@@ -232,14 +237,13 @@ export default function ContactPage() {
                         onChange={handleChange}
                         placeholder="اكتب رسالتك هنا..."
                         rows={5}
-                        className="bg-gray-700 border-gray-600 text-white"
                         required
                       />
                     </div>
 
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                     >
                       <Send className="h-4 w-4 ml-2" />
                       إرسال الرسالة
@@ -250,10 +254,10 @@ export default function ContactPage() {
 
               {/* Map and Office Info */}
               <div className="space-y-6">
-                <Card className="bg-gray-800 border-gray-700">
+                <Card>
                   <CardHeader>
-                    <CardTitle className="text-xl text-white">موقع المكتب</CardTitle>
-                    <CardDescription className="text-gray-300">زورنا في مكتبنا الرئيسي في جيبوتي سيتي</CardDescription>
+                    <CardTitle className="text-xl text-gray-800">موقع المكتب</CardTitle>
+                    <CardDescription>زورنا في مكتبنا الرئيسي في جيبوتي سيتي</CardDescription>
                   </CardHeader>
 
                   <CardContent>
@@ -267,56 +271,56 @@ export default function ContactPage() {
 
                     <div className="space-y-3">
                       <div className="flex items-center">
-                        <MapPin className="h-5 w-5 text-orange-400 ml-3" />
+                        <MapPin className="h-5 w-5 text-blue-600 ml-3" />
                         <div>
-                          <p className="font-semibold text-white">العنوان</p>
-                          <p className="text-gray-300">شارع الاستقلال، جيبوتي سيتي، جيبوتي</p>
+                          <p className="font-semibold">العنوان</p>
+                          <p className="text-gray-600">شارع الاستقلال، جيبوتي سيتي، جيبوتي</p>
                         </div>
                       </div>
 
                       <div className="flex items-center">
-                        <Phone className="h-5 w-5 text-orange-400 ml-3" />
+                        <Phone className="h-5 w-5 text-blue-600 ml-3" />
                         <div>
-                          <p className="font-semibold text-white">الهاتف</p>
-                          <p className="text-gray-300">+253-77-77-77-77</p>
+                          <p className="font-semibold">الهاتف</p>
+                          <p className="text-gray-600">+253 77777777</p>
                         </div>
                       </div>
 
                       <div className="flex items-center">
-                        <Mail className="h-5 w-5 text-orange-400 ml-3" />
+                        <Mail className="h-5 w-5 text-blue-600 ml-3" />
                         <div>
-                          <p className="font-semibold text-white">البريد الإلكتروني</p>
-                          <p className="text-gray-300">medalmqaleh@gmail.com</p>
+                          <p className="font-semibold">البريد الإلكتروني</p>
+                          <p className="text-gray-600">medalmqaleh@gmail.com</p>
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-800 border-gray-700">
+                <Card>
                   <CardHeader>
-                    <CardTitle className="text-xl text-white">معلومات إضافية</CardTitle>
+                    <CardTitle className="text-xl text-gray-800">معلومات إضافية</CardTitle>
                   </CardHeader>
 
                   <CardContent className="space-y-4">
                     <div>
-                      <h4 className="font-semibold mb-2 text-white">خدمة العملاء</h4>
-                      <p className="text-gray-300 text-sm">
+                      <h4 className="font-semibold mb-2">خدمة العملاء</h4>
+                      <p className="text-gray-600 text-sm">
                         فريق خدمة العملاء متاح للرد على استفساراتكم من السبت إلى الخميس من الساعة 8:00 صباحاً حتى 6:00
                         مساءً
                       </p>
                     </div>
 
                     <div>
-                      <h4 className="font-semibold mb-2 text-white">الاستشارات المجانية</h4>
-                      <p className="text-gray-300 text-sm">
+                      <h4 className="font-semibold mb-2">الاستشارات المجانية</h4>
+                      <p className="text-gray-600 text-sm">
                         نقدم استشارات مجانية لمساعدتك في اختيار العقار المناسب لاحتياجاتك
                       </p>
                     </div>
 
                     <div>
-                      <h4 className="font-semibold mb-2 text-white">زيارات ميدانية</h4>
-                      <p className="text-gray-300 text-sm">
+                      <h4 className="font-semibold mb-2">زيارات ميدانية</h4>
+                      <p className="text-gray-600 text-sm">
                         يمكننا ترتيب زيارات ميدانية للعقارات المختارة في الوقت المناسب لك
                       </p>
                     </div>
@@ -329,56 +333,56 @@ export default function ContactPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-gray-800">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h3 className="text-3xl font-bold text-white mb-4">الأسئلة الشائعة</h3>
-              <p className="text-gray-300">إجابات على أكثر الأسئلة شيوعاً</p>
+              <h3 className="text-3xl font-bold text-gray-800 mb-4">الأسئلة الشائعة</h3>
+              <p className="text-gray-600">إجابات على أكثر الأسئلة شيوعاً</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
-              <Card className="bg-gray-700 border-gray-600">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-white">كيف يمكنني حجز شقة؟</CardTitle>
+                  <CardTitle className="text-lg">كيف يمكنني حجز شقة؟</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-300">
+                  <p className="text-gray-600">
                     يمكنك حجز الشقة عبر التواصل معنا مباشرة عبر واتساب أو الهاتف، وسنقوم بترتيب زيارة ميدانية واستكمال
                     إجراءات الحجز.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-700 border-gray-600">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-white">ما هي المستندات المطلوبة؟</CardTitle>
+                  <CardTitle className="text-lg">ما هي المستندات المطلوبة؟</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-300">
+                  <p className="text-gray-600">
                     نحتاج إلى صورة من الهوية الشخصية، إثبات الدخل، وتأمين يعادل شهر واحد من الإيجار كحد أدنى.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-700 border-gray-600">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-white">هل تقدمون خدمة الصيانة؟</CardTitle>
+                  <CardTitle className="text-lg">هل تقدمون خدمة الصيانة؟</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-300">
+                  <p className="text-gray-600">
                     نعم، نقدم خدمة صيانة شاملة لجميع العقارات المؤجرة من خلالنا مع فريق صيانة متخصص ومتاح على مدار
                     الساعة.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-700 border-gray-600">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-white">كم تستغرق عملية الموافقة؟</CardTitle>
+                  <CardTitle className="text-lg">كم تستغرق عملية الموافقة؟</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-300">
+                  <p className="text-gray-600">
                     عادة ما تستغرق عملية الموافقة من 24 إلى 48 ساعة بعد تقديم جميع المستندات المطلوبة واستكمال
                     الإجراءات.
                   </p>
@@ -395,10 +399,10 @@ export default function ContactPage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 rtl:space-x-reverse mb-4">
-                <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-2 rounded-lg">
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2 rounded-lg">
                   <MapPin className="h-5 w-5" />
                 </div>
-                <h4 className="text-xl font-bold">MusafireenDj</h4>
+                <h4 className="text-xl font-bold">عقارات جيبوتي</h4>
               </div>
               <p className="text-gray-400">
                 نحن نقدم أفضل الخدمات العقارية في جيبوتي مع التزام كامل بالجودة والمصداقية.
@@ -446,7 +450,7 @@ export default function ContactPage() {
               <div className="space-y-2 text-gray-400">
                 <p className="flex items-center">
                   <Phone className="h-4 w-4 ml-2" />
-                  +253-77-77-77-77
+                  +253 77777777
                 </p>
                 <p className="flex items-center">
                   <Mail className="h-4 w-4 ml-2" />
@@ -461,7 +465,7 @@ export default function ContactPage() {
           </div>
 
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 MusafireenDj. جميع الحقوق محفوظة.</p>
+            <p>&copy; 2024 عقارات جيبوتي. جميع الحقوق محفوظة.</p>
           </div>
         </div>
       </footer>

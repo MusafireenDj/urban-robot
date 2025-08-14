@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Phone, Mail, MessageCircle, Bed, Bath, Square, Star, ExternalLink } from 'lucide-react'
+import { MapPin, Phone, Mail, MessageCircle, Bed, Bath, Square, Star, Play } from "lucide-react"
 
 export default function HomePage() {
   const featuredProperties = [
@@ -53,11 +53,6 @@ export default function HomePage() {
     },
   ]
 
-  const openGoogleMaps = () => {
-    const url = "https://www.google.com/maps/search/?api=1&query=جيبوتي+سيتي"
-    window.open(url, '_blank')
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black">
       {/* Header */}
@@ -86,71 +81,36 @@ export default function HomePage() {
               <Link href="/contact" className="text-gray-300 hover:text-orange-400 transition-colors">
                 اتصل بنا
               </Link>
+              <Link href="/login" className="text-gray-300 hover:text-orange-400 transition-colors">
+                تسجيل الدخول
+              </Link>
             </nav>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/placeholder.svg?height=1080&width=1920&text=منزل+في+جيبوتي"
-            alt="منزل في جيبوتي"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 hero-overlay"></div>
-        </div>
-
-        <div className="relative z-10 container mx-auto px-4 text-center">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-6xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
-              اعثر على منزلك في جيبوتي
-            </h2>
-            
-            <p className="text-xl md:text-2xl text-white mb-8 max-w-3xl mx-auto drop-shadow-lg">
-              نوفر لك أفضل الشقق والمنازل للإيجار في أجمل مناطق جيبوتي بأسعار مناسبة وخدمة متميزة
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 py-4 text-lg font-semibold shadow-2xl"
-              >
-                <Link href="/properties">تصفح العقارات</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 text-lg font-semibold bg-white/10 backdrop-blur-sm"
-                onClick={() =>
-                  window.open("https://wa.me/+25377777777?text=مرحباً، أريد الاستفسار عن العقارات المتاحة", "_blank")
-                }
-              >
-                <MessageCircle className="ml-2 h-5 w-5" />
-                تواصل معنا عبر واتساب
-              </Button>
-            </div>
-
-            <div className="mt-8">
-              <Button
-                onClick={openGoogleMaps}
-                variant="outline"
-                className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white bg-black/30 backdrop-blur-sm"
-              >
-                <MapPin className="ml-2 h-4 w-4" />
-                عرض الموقع على خرائط جوجل
-                <ExternalLink className="mr-2 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white rounded-full mt-2 animate-pulse"></div>
+      <section className="py-20 text-center">
+        <div className="container mx-auto px-4">
+          <h2 className="text-5xl font-bold text-white mb-6">اعثر على منزل أحلامك في جيبوتي</h2>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            نوفر لك أفضل الشقق والمنازل للإيجار في أجمل مناطق جيبوتي بأسعار مناسبة وخدمة متميزة
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-700 hover:to-yellow-700 text-white px-8 py-3"
+            >
+              <Link href="/properties">تصفح العقارات</Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-orange-400 text-orange-400 hover:bg-blue-50 px-8 py-3 bg-transparent"
+            >
+              <MessageCircle className="ml-2 h-5 w-5" />
+              تواصل معنا عبر واتساب
+            </Button>
           </div>
         </div>
       </section>
@@ -167,7 +127,7 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredProperties.map((property) => (
-              <Card key={property.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group bg-gray-700 border-gray-600">
+              <Card key={property.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
                 <div className="relative">
                   <Image
                     src={property.image || "/placeholder.svg"}
@@ -218,7 +178,7 @@ export default function HomePage() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button className="flex-1 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600">
+                    <Button className="flex-1 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-700 hover:to-yellow-700">
                       <Link href={`/property/${property.id}`}>عرض التفاصيل</Link>
                     </Button>
                     <Button
@@ -227,7 +187,7 @@ export default function HomePage() {
                       className="border-green-500 text-green-600 hover:bg-green-50 bg-transparent"
                       onClick={() =>
                         window.open(
-                          "https://wa.me/+25377777777?text=مرحباً، أريد الاستفسار عن " + property.title,
+                          `https://wa.me/+253XXXXXXXX?text=مرحباً، أريد الاستفسار عن ${property.title}`,
                           "_blank",
                         )
                       }
@@ -244,10 +204,42 @@ export default function HomePage() {
             <Button
               size="lg"
               variant="outline"
-              className="border-orange-400 text-orange-400 hover:bg-orange-50 bg-transparent"
+              className="border-orange-400 text-orange-400 hover:bg-blue-50 bg-transparent"
             >
               <Link href="/properties">عرض جميع العقارات</Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Video Gallery Section */}
+      <section className="py-16 bg-gray-900">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold text-white mb-4">جولة افتراضية في عقاراتنا</h3>
+            <p className="text-gray-300 max-w-2xl mx-auto">شاهد فيديوهات حصرية لأفضل العقارات المتاحة للإيجار</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-gray-800 rounded-lg overflow-hidden hover:shadow-xl transition-shadow">
+              <div className="relative">
+                <div className="bg-gray-700 h-48 flex items-center justify-center">
+                  <div className="text-center text-gray-400">
+                    <Play className="h-12 w-12 mx-auto mb-2" />
+                    <p>فيديو العقار 1</p>
+                  </div>
+                </div>
+                <Button className="absolute inset-0 bg-black/50 hover:bg-black/70 text-white opacity-0 hover:opacity-100 transition-opacity">
+                  <Play className="h-8 w-8" />
+                </Button>
+              </div>
+              <div className="p-4">
+                <h4 className="text-white font-semibold">شقة فاخرة - جولة كاملة</h4>
+                <p className="text-gray-400 text-sm">مدة الفيديو: 3:45</p>
+              </div>
+            </div>
+
+            {/* يمكنك إضافة المزيد من الفيديوهات هنا */}
           </div>
         </div>
       </section>
@@ -257,7 +249,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h3 className="text-3xl font-bold mb-4">لماذا تختارنا؟</h3>
-            <p className="text-orange-100 max-w-2xl mx-auto">
+            <p className="text-blue-100 max-w-2xl mx-auto">
               نقدم خدمات متميزة لضمان حصولك على أفضل تجربة في البحث عن السكن المناسب
             </p>
           </div>
@@ -268,7 +260,7 @@ export default function HomePage() {
                 <MapPin className="h-8 w-8" />
               </div>
               <h4 className="text-xl font-semibold mb-2">مواقع متميزة</h4>
-              <p className="text-orange-100">عقارات في أفضل المناطق والأحياء في جيبوتي</p>
+              <p className="text-blue-100">عقارات في أفضل المناطق والأحياء في جيبوتي</p>
             </div>
 
             <div className="text-center">
@@ -276,7 +268,7 @@ export default function HomePage() {
                 <Phone className="h-8 w-8" />
               </div>
               <h4 className="text-xl font-semibold mb-2">دعم على مدار الساعة</h4>
-              <p className="text-orange-100">فريق خدمة العملاء متاح دائماً لمساعدتك</p>
+              <p className="text-blue-100">فريق خدمة العملاء متاح دائماً لمساعدتك</p>
             </div>
 
             <div className="text-center">
@@ -284,14 +276,14 @@ export default function HomePage() {
                 <MessageCircle className="h-8 w-8" />
               </div>
               <h4 className="text-xl font-semibold mb-2">تواصل سريع</h4>
-              <p className="text-orange-100">تواصل مباشر عبر واتساب لاستفسارات فورية</p>
+              <p className="text-blue-100">تواصل مباشر عبر واتساب لاستفسارات فورية</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 bg-gray-800">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -300,33 +292,27 @@ export default function HomePage() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              <Card className="text-center hover:shadow-lg transition-shadow bg-gray-700 border-gray-600">
+              <Card className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
-                  <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                    <Phone className="h-8 w-8 text-orange-600" />
+                  <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <Phone className="h-8 w-8 text-orange-400" />
                   </div>
-                  <h4 className="font-semibold mb-2 text-white">اتصل بنا</h4>
-                  <p className="text-gray-300 mb-2">+253-77-77-77-77</p>
-                  <Button
-                    className="mt-3 w-full bg-transparent"
-                    variant="outline"
-                    onClick={() => (window.location.href = "tel:+25377777777")}
-                  >
-                    اتصال الآن
-                  </Button>
+                  <h4 className="font-semibold mb-2">اتصل بنا</h4>
+                  <p className="text-gray-300 mb-2">+253 XX XX XX XX</p>
+                  <p className="text-gray-300">+253 XX XX XX XX</p>
                 </CardContent>
               </Card>
 
-              <Card className="text-center hover:shadow-lg transition-shadow bg-gray-700 border-gray-600">
+              <Card className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
                   <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <MessageCircle className="h-8 w-8 text-green-600" />
                   </div>
-                  <h4 className="font-semibold mb-2 text-white">واتساب</h4>
+                  <h4 className="font-semibold mb-2">واتساب</h4>
                   <Button
                     className="bg-green-600 hover:bg-green-700 text-white"
                     onClick={() =>
-                      window.open("https://wa.me/+25377777777?text=مرحباً، أريد الاستفسار عن العقارات المتاحة", "_blank")
+                      window.open("https://wa.me/+253XXXXXXXX?text=مرحباً، أريد الاستفسار عن العقارات المتاحة", "_blank")
                     }
                   >
                     تواصل الآن
@@ -334,20 +320,14 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card className="text-center hover:shadow-lg transition-shadow bg-gray-700 border-gray-600">
+              <Card className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
                   <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <Mail className="h-8 w-8 text-purple-600" />
                   </div>
-                  <h4 className="font-semibold mb-2 text-white">البريد الإلكتروني</h4>
+                  <h4 className="font-semibold mb-2">البريد الإلكتروني</h4>
                   <p className="text-gray-300 mb-2">medalmqaleh@gmail.com</p>
-                  <Button
-                    variant="outline"
-                    className="w-full bg-transparent"
-                    onClick={() => (window.location.href = "mailto:medalmqaleh@gmail.com")}
-                  >
-                    إرسال إيميل
-                  </Button>
+                  <p className="text-gray-300">medalmqaleh@gmail.com</p>
                 </CardContent>
               </Card>
             </div>
@@ -412,16 +392,15 @@ export default function HomePage() {
               <div className="space-y-2 text-gray-400">
                 <p className="flex items-center">
                   <Phone className="h-4 w-4 ml-2" />
-                  +253-77-77-77-77
+                  +253 XX XX XX XX
                 </p>
                 <p className="flex items-center">
                   <Mail className="h-4 w-4 ml-2" />
                   medalmqaleh@gmail.com
                 </p>
-                <p className="flex items-center cursor-pointer hover:text-orange-400" onClick={openGoogleMaps}>
+                <p className="flex items-center">
                   <MapPin className="h-4 w-4 ml-2" />
                   جيبوتي سيتي، جيبوتي
-                  <ExternalLink className="h-3 w-3 mr-1" />
                 </p>
               </div>
             </div>

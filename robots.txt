@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-Allow: /properties
-Allow: /about
-Allow: /contact
-Disallow: /admin
-Disallow: /login
-
-Sitemap: https://musafireendj.com/sitemap.xml

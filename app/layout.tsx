@@ -1,34 +1,31 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
-
 export const metadata: Metadata = {
-  title: 'MusafireenDj - أفضل العقارات للإيجار في جيبوتي',
-  description: 'اعثر على منزلك في جيبوتي مع MusafireenDj. أفضل الشقق والمنازل للإيجار في جيبوتي بأسعار مناسبة وخدمة متميزة.',
-  keywords: 'عقارات جيبوتي, شقق للإيجار جيبوتي, منازل جيبوتي, سكن جيبوتي, إيجار شقق جيبوتي',
-  authors: [{ name: 'MusafireenDj' }],
-  viewport: 'width=device-width, initial-scale=1',
-  robots: 'index, follow',
-    generator: 'v0.dev'
+  title: 'v0 App',
+  description: 'Created with v0',
+  generator: 'v0.app',
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="en">
       <head>
-        <link rel="canonical" href="https://musafireendj.com" />
-        <meta name="theme-color" content="#f97316" />
-        <link rel="icon" href="/favicon.ico" />
+        <style>{`
+html {
+  font-family: ${GeistSans.style.fontFamily};
+  --font-sans: ${GeistSans.variable};
+  --font-mono: ${GeistMono.variable};
+}
+        `}</style>
       </head>
-      <body className={inter.className}>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
